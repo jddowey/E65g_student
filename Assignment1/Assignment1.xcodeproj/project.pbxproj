@@ -96,6 +96,9 @@
 		FBAD2E5F1E2BF8D4008207C0 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				KnownAssetTags = (
+					"tag for control",
+				);
 				LastSwiftUpdateCheck = 0820;
 				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "Harvard Division of Continuing Education";
