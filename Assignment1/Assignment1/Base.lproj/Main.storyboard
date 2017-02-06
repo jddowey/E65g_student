@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16C68" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="49e-Tb-3d3">
-    <device id="retina3_5" orientation="landscape">
+    <device id="retina5_5" orientation="landscape">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -20,15 +20,15 @@
                         <viewControllerLayoutGuide type="bottom" id="4ug-Mw-9AY"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="tsR-hK-woN">
-                        <rect key="frame" x="0.0" y="0.0" width="480" height="320"/>
+                        <rect key="frame" x="0.0" y="0.0" width="736" height="414"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iMD-4Z-IRc" userLabel="Wrapping View">
-                                <rect key="frame" x="0.0" y="20" width="480" height="251"/>
+                                <rect key="frame" x="0.0" y="20" width="736" height="345"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fvu-Xx-9ph" userLabel="LifeGrid">
-                                        <rect key="frame" x="139.5" y="25" width="201" height="201"/>
-                                        <color key="backgroundColor" red="0.7422283154" green="0.90624309879999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <rect key="frame" x="230.33333333333331" y="35" width="275.33333333333337" height="275"/>
+                                        <color key="backgroundColor" red="0.7422283154" green="0.90624309879999998" blue="1" alpha="0.3477632705479452" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="fvu-Xx-9ph" secondAttribute="height" multiplier="1:1" id="LUg-3D-Kca"/>
                                         </constraints>
@@ -58,7 +58,7 @@
                             <constraint firstItem="iMD-4Z-IRc" firstAttribute="top" secondItem="Ia1-K6-d13" secondAttribute="bottom" id="xH6-TS-shD"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="First" image="first" id="acW-dT-cKf"/>
+                    <tabBarItem key="tabBarItem" title="Simulation" image="first" id="acW-dT-cKf" userLabel="Simulation"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="W5J-7L-Pyd" sceneMemberID="firstResponder"/>
             </objects>
@@ -73,20 +73,20 @@
                         <viewControllerLayoutGuide type="bottom" id="Djb-ko-YwX"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="QS5-Rx-YEW">
-                        <rect key="frame" x="0.0" y="0.0" width="480" height="320"/>
+                        <rect key="frame" x="0.0" y="0.0" width="736" height="414"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="r3F-ma-yzl" userLabel="Wrapping View">
-                                <rect key="frame" x="0.0" y="20" width="480" height="251"/>
+                                <rect key="frame" x="0.0" y="20" width="736" height="345"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kQH-lR-sLc" userLabel="BlueBox">
-                                        <rect key="frame" x="0.0" y="0.0" width="240" height="251"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="368" height="345"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Nug-bQ-CfY" userLabel="TopBox">
-                                                <rect key="frame" x="0.0" y="0.0" width="240" height="189"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="368" height="259"/>
                                                 <subviews>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Generation" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1BB-rx-M6X">
-                                                        <rect key="frame" x="1" y="25" width="85" height="38"/>
+                                                        <rect key="frame" x="53" y="25" width="116.33333333333334" height="51.666666666666671"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" secondItem="1BB-rx-M6X" secondAttribute="height" multiplier="4.5:2" id="dco-Uo-h42"/>
                                                         </constraints>
@@ -95,7 +95,7 @@
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Grid size" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0UJ-Be-BSJ">
-                                                        <rect key="frame" x="1" y="78" width="67" height="38.5"/>
+                                                        <rect key="frame" x="53" y="119.66666666666666" width="90.666666666666657" height="51.666666666666686"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" secondItem="0UJ-Be-BSJ" secondAttribute="height" multiplier="3.5:2" id="9bS-eo-EyZ"/>
                                                         </constraints>
@@ -104,7 +104,7 @@
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Frames/second" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TzR-iW-RLd">
-                                                        <rect key="frame" x="1" y="126.5" width="113" height="37.5"/>
+                                                        <rect key="frame" x="52.999999999999986" y="181.33333333333337" width="157.66666666666663" height="52.666666666666657"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" secondItem="TzR-iW-RLd" secondAttribute="height" multiplier="3" id="duQ-iU-koV"/>
                                                         </constraints>
@@ -113,14 +113,14 @@
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="Exn-pw-ORm" userLabel="GridSizeSlider">
-                                                        <rect key="frame" x="139" y="67.5" width="88" height="48"/>
+                                                        <rect key="frame" x="222.33333333333337" y="102.33333333333331" width="132.66666666666663" height="65.666666666666686"/>
                                                         <accessibility key="accessibilityConfiguration" label="Grid Size"/>
                                                     </slider>
                                                     <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="gsp-YG-IMF" userLabel="FramesSecondSlider">
-                                                        <rect key="frame" x="139" y="116.5" width="88" height="48.5"/>
+                                                        <rect key="frame" x="222.33333333333337" y="169" width="132.66666666666663" height="66"/>
                                                     </slider>
                                                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="KEC-IE-vEp" userLabel="GenerationField">
-                                                        <rect key="frame" x="141" y="25" width="84" height="47.5"/>
+                                                        <rect key="frame" x="224.33333333333337" y="25" width="128.66666666666663" height="64.666666666666671"/>
                                                         <nil key="textColor"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <textInputTraits key="textInputTraits"/>
@@ -161,10 +161,10 @@
                                                 </variation>
                                             </view>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3Sm-ES-mqv" userLabel="BottomBox">
-                                                <rect key="frame" x="0.0" y="189" width="240" height="62"/>
+                                                <rect key="frame" x="0.0" y="259" width="368" height="86"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pKs-Y7-RcD" userLabel="Reset">
-                                                        <rect key="frame" x="103" y="16" width="122" height="30.5"/>
+                                                        <rect key="frame" x="177.66666666666663" y="20.333333333333314" width="175.33333333333337" height="43.666666666666686"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" secondItem="pKs-Y7-RcD" secondAttribute="height" multiplier="4:1" id="Jv4-Zx-z41"/>
                                                         </constraints>
@@ -179,7 +179,7 @@
                                                 </constraints>
                                             </view>
                                         </subviews>
-                                        <color key="backgroundColor" red="0.7422283154" green="0.90624309879999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="backgroundColor" red="0.7422283154" green="0.90624309879999998" blue="1" alpha="0.35188356164383561" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstItem="pKs-Y7-RcD" firstAttribute="trailing" secondItem="gsp-YG-IMF" secondAttribute="trailing" id="302-06-FW2"/>
                                             <constraint firstItem="3Sm-ES-mqv" firstAttribute="leading" secondItem="kQH-lR-sLc" secondAttribute="leading" id="Bfz-Lj-ThD"/>
@@ -201,8 +201,8 @@
                                         </userDefinedRuntimeAttributes>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tnh-5N-JOw" userLabel="GreenBox">
-                                        <rect key="frame" x="240" y="0.0" width="240" height="251"/>
-                                        <color key="backgroundColor" red="0.70285080030000002" green="1" blue="0.72829312290000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <rect key="frame" x="368" y="0.0" width="368" height="345"/>
+                                        <color key="backgroundColor" red="0.70285080030000002" green="1" blue="0.72829312290000003" alpha="0.35311429794520549" colorSpace="custom" customColorSpace="sRGB"/>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                                                 <integer key="value" value="10"/>
@@ -274,7 +274,7 @@
                             <constraint firstItem="r3F-ma-yzl" firstAttribute="top" secondItem="L7p-HK-0SC" secondAttribute="bottom" id="wQT-5r-gvL"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Second" image="second" id="cPa-gy-q4n"/>
+                    <tabBarItem key="tabBarItem" title="Instrumentation" image="second" id="cPa-gy-q4n" userLabel="Instrumentation"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4Nw-L8-lE0" sceneMemberID="firstResponder"/>
             </objects>
