@@ -321,7 +321,7 @@ To go through columns, return subtotal, then to go through rows, return total nu
  */
 // ** Your Problem 11.3 answer goes here **
 /*
- Because we count the elements of the array, the result is always an Int
+ Because unlike in map2 we don't care about the type of elements of the array passed to the reduce2, since we count the elements of the array with the result being an Int
  */
 
 // A function which is useful for counting things in an array of arrays of things
@@ -347,7 +347,7 @@ extension Grid {
     var numLiving: Int {
         return reduce2(self.rows, self.cols) { total, row, col in
             // ** Replace the following line with your Problem 12 code
-            return cells[row][col].state == CellState.alive ? total+1: total
+            return cells[row][col].state == .alive ? total+1: total
         }
     }
 }
@@ -447,7 +447,7 @@ extension Grid {
  */
 // Problem 15.3 comment goes here
 /*
- Because they are not the same, Optional Cell exists within a scope of the closure
+Because Optional Cell exists within a scope of the closure and we are using a subscript with a return value of Optional Cell so that in case the aGrid[row, col] of the cell are out of the grid, the return value of subscript will be a nil
  */
 /*:
  4. under what circumstances will the `else` clause will be executed?
