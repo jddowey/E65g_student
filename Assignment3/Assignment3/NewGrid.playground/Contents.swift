@@ -1,11 +1,28 @@
 import Foundation
 
 public typealias Position = (row: Int, col: Int)
+public typealias PositionSequence = [Position]
+
+// Implement the wrap around rules
+public func normalize(position: Position, to modulus: Position) -> Position {
+    let modRows = modulus.row, modCols = modulus.col
+    return Position(
+        row: ((position.row % modRows) + modRows) % modRows,
+        col: ((position.col % modCols) + modCols) % modCols
+    )
+}
+
+// Provide a sequence of all positions in a range
+public func positionSequence (from: Position, to: Position) -> PositionSequence {
+    return (from.row ..< to.row)
+        .map { row in zip( [Int](repeating: row, count: to.col - from.col), from.col ..< to.col ) }
+        .flatMap { $0 }
+}
 
 public enum CellState {
     case alive, empty, born, died
     
-    var isAlive: Bool {
+    public var isAlive: Bool {
         switch self {
         case .alive, .born: return true
         default: return false
@@ -20,40 +37,22 @@ public struct Cell {
 
 public struct Grid {
     private var _cells: [[Cell]]
+    fileprivate var modulus: Position { return Position(_cells.count, _cells[0].count) }
     
-    public var rows: Int { return _cells.count }
-    public var cols: Int { return _cells[0].count }
-    public var positions: [Position] {
-        return (0 ..< rows)
-            .lazy
-            .map { row in zip( [Int](repeating: row, count: self.cols), 0 ..< self.cols ) }
-            .flatMap { $0 }
+    // Get and Set cell states by position
+    public subscript (pos: Position) -> CellState {
+        get { let pos = normalize(position: pos, to: modulus); return _cells[pos.row][pos.col].state }
+        set { let pos = normalize(position: pos, to: modulus); _cells[pos.row][pos.col].state = newValue }
     }
     
+    // Allow access to the sequence of positions
+    public let positions: PositionSequence
+    
+    // Initialize _cells and positions
     public init(_ rows: Int, _ cols: Int, cellInitializer: (Position) -> CellState = { _, _ in .empty } ) {
         _cells = [[Cell]]( repeatElement( [Cell](repeatElement(Cell(), count: rows)), count: cols) )
-        positions.forEach {
-            self[$0].position = $0
-            self[$0].state    = cellInitializer($0)
-        }
-    }
-    
-    private func normalize(position: Position) -> Position {
-        return Position(
-            row: ((position.row % rows) + rows) % rows,
-            col: ((position.col % cols) + cols) % cols
-        )
-    }
-
-    public subscript (pos: Position) -> Cell {
-        get {
-            let pos = normalize(position: pos)
-            return _cells[pos.row][pos.col]
-        }
-        set {
-            let pos = normalize(position: pos)
-            _cells[pos.row][pos.col] = newValue
-        }
+        positions = positionSequence(from: Position(0,0), to: Position(rows, cols))
+        positions.forEach { _cells[$0.row][$0.col].position = $0; self[$0] = cellInitializer($0) }
     }
     
     private static let offsets: [Position] = [
@@ -61,64 +60,51 @@ public struct Grid {
         (row:  0, col:  -1),                     (row:  0, col:  1),
         (row:  1, col:  -1), (row:  1, col:  0), (row:  1, col:  1)
     ]
-    private func neighbors(of cell: Cell) -> [Cell] {
-        return Grid.offsets.lazy.map {
-            let position = normalize(position: Position(
-                row: (cell.position.row + $0.row),
-                col: (cell.position.col + $0.col)
-            ))
-            return self[position]
+    private func neighbors(of position: Position) -> [CellState] {
+        return Grid.offsets.map {
+            let neighbor = normalize(position: Position(
+                row: (position.row + $0.row),
+                col: (position.col + $0.col)
+            ), to: modulus)
+            return self[neighbor]
         }
     }
     
-    private func nextState(of cell: Cell) -> CellState {
-        switch neighbors(of: cell).filter({ $0.state.isAlive }).count {
-        case 2 where cell.state.isAlive,
-             3: return cell.state.isAlive ? .alive : .born
-        default: return cell.state.isAlive ? .died  : .empty
+    private func nextState(of position: Position) -> CellState {
+        switch neighbors(of: position).filter({ $0.isAlive }).count {
+        case 2 where self[position].isAlive,
+             3: return self[position].isAlive ? .alive : .born
+        default: return self[position].isAlive ? .died  : .empty
         }
     }
     
+    // Generate the next state of the grid
     public func next() -> Grid {
-        var nextGrid = Grid(rows, cols)
-        positions.forEach {
-            nextGrid[$0] = Cell(
-                position: Position(row: $0.row, col: $0.col),
-                state: self.nextState(of: self[$0])
-            )
-        }
+        var nextGrid = Grid(modulus.row, modulus.col)
+        positions.forEach { nextGrid[$0] = self.nextState(of: $0) }
         return nextGrid
     }
 }
 
 public extension Grid {
     public var description: String {
-        return positions.reduce("") {
-            var s = $0 + (self[$1].state.isAlive ? "*" : " ")
-            if $1.col == self.cols - 1 { s += "\n" }
-            return s
-        }
+        return positions
+            .map { (self[$0].isAlive ? "*" : " ") + ($0.1 == self.modulus.col - 1 ? "\n" : "") }
+            .joined()
     }
-    public var living: [Position] { return positions.flatMap { return  self[$0].state.isAlive   ? $0 : nil } }
-    public var dead  : [Position] { return positions.flatMap { return !self[$0].state.isAlive   ? $0 : nil } }
-    public var alive : [Position] { return positions.flatMap { return  self[$0].state == .alive ? $0 : nil } }
-    public var born  : [Position] { return positions.flatMap { return  self[$0].state == .born  ? $0 : nil } }
-    public var died  : [Position] { return positions.flatMap { return  self[$0].state == .died  ? $0 : nil } }
-    public var empty : [Position] { return positions.flatMap { return  self[$0].state == .empty ? $0 : nil } }
+    public var living: [Position] { return positions.filter { return  self[$0].isAlive   } }
+    public var dead  : [Position] { return positions.filter { return !self[$0].isAlive   } }
+    public var alive : [Position] { return positions.filter { return  self[$0] == .alive } }
+    public var born  : [Position] { return positions.filter { return  self[$0] == .born  } }
+    public var died  : [Position] { return positions.filter { return  self[$0] == .died  } }
+    public var empty : [Position] { return positions.filter { return  self[$0] == .empty } }
 }
 
 extension Grid: Sequence {
     public struct SimpleGridIterator: IteratorProtocol {
         private var grid: Grid
-        
-        public init(grid: Grid) {
-            self.grid = grid
-        }
-        
-        public mutating func next() -> Grid? {
-            grid = grid.next()
-            return grid
-        }
+        public init(grid: Grid) { self.grid = grid }
+        public mutating func next() -> Grid? { return grid.next() }
     }
     
     public struct HistoricGridIterator: IteratorProtocol {
