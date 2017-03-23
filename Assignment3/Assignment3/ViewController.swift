@@ -10,6 +10,10 @@ import UIKit
 
 class ViewController: UIViewController {
 
+
+    @IBOutlet weak var myLabel: UILabel!
+    @IBOutlet weak var myButton: UIButton!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -20,6 +24,18 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
+    @IBAction func changeText(_ sender: Any) {
+        if myLabel.text == "Some my text" {
+            myLabel.text = "Some new text"
+        }
+        else {
+            myLabel.text = "Some old text"
+        }
+        myButton.titleLabel?.text = "Text"
+    }
+
+    @IBAction func onStep(_ sender: Any) {
+    }
 
 }
 

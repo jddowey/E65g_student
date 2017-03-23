@@ -227,21 +227,11 @@ struct Grid {
     init(_ rows: Int,
          _ cols: Int,
          cellInitializer: (Int, Int) -> CellState = { _,_ in .empty } ) {
-        // ** Your Problem 7 code goes here! **
-<<<<<<< HEAD
-            self.rows = rows
-            self.cols = cols
-            let cellsArray = [Cell](repeatElement(Cell(position: Cell().position,state: Cell().state), count: cols))
-            self.cells = [Array](repeatElement(cellsArray, count: rows))
-        //alternatively the last two rows can be written by using a contruction Array(repeating: Element, count:Int)
-        //let cellsArray = Array(repeating: Cell(position: Cell().position,state: Cell().state), count:cols)
-        //self.cells = Array(repeating: cellsArray, count: rows)
-=======
+
         self.rows = rows
         self.cols = cols
         cells = [[Cell]](repeatElement([Cell](repeatElement(Cell(position:(0,0), state: .empty), count: cols)), count: rows))
-        
->>>>>>> course_upstream/master
+
         map2(rows, cols) { row, col in
             // ** Your Problem 8 code goes here! **
             cells[row][col].position = (row, col)

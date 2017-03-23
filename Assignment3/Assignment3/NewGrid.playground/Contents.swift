@@ -19,9 +19,39 @@ public func positionSequence (from: Position, to: Position) -> PositionSequence 
         .flatMap { $0 }
 }
 
-public enum CellState {
-    case alive, empty, born, died
+public enum CellState: String {
+    case alive = "alive"
+    case empty = "empty"
+    case born = "born"
+    case died = "died"
     
+    
+    func description() -> String {
+        switch self {
+        //case .alive, .empty, .born, .died: return self.rawValue
+       default: return self.rawValue
+        }
+    }
+    func toggle(value:CellState)-> CellState{
+        switch self {
+        case .empty, .died: return .alive
+        case .alive, .born: return .empty
+        }
+    }
+
+    func allValues() -> Array<String> {
+        let caseArr = [String]()
+        _ = CellState.alive
+        //while cases != CellState.died{
+        
+        //caseArr.append(cases.rawValue)
+            
+        //cases = CellState(rawValue: cases.description())!
+        //}
+        //caseArr.append(self.description())
+        //print(caseArr)
+        return caseArr
+    }
     public var isAlive: Bool {
         switch self {
         case .alive, .born: return true
@@ -29,6 +59,26 @@ public enum CellState {
         }
     }
 }
+print(CellState.empty.allValues())
+print(CellState.alive.allValues())
+print(CellState.empty.description())
+//print(CellState.empty.allValues())
+
+//func allValues() -> Array<String> {
+//    return ["alive", "empty", "born", "died"]
+//}
+
+//var suitElements = String[]()
+//for index in 0...Suit.SuitCount.toRaw()-1 {
+//    suitElements.append(self.getValueFromSuitAtIndex(indexOfElement: index))
+//}
+
+func selectedString(_ myStr: String) -> String{
+    return myStr
+}
+let mySt = selectedString("alive")
+
+
 
 public struct Cell {
     var position = Position(row:0, col:0)
