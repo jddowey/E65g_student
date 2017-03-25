@@ -33,6 +33,7 @@ import UIKit
     // An empty implementation adversely affects performance during animation.
      */
     
+    //problem 4
     override func draw(_ rect: CGRect) {
         // Drawing code
         //base
@@ -115,9 +116,10 @@ import UIKit
         gridColor.setStroke()
         linePath.stroke()
     }
+    //end of problem 4
     
-    
-    //    //touch events
+    // problem 5
+    // touch events
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         lastTouchedPosition = process(touches: touches)
@@ -156,11 +158,13 @@ import UIKit
         let position = (row: Int(row), col: Int(col))
         return position
     }
+    //end of problem 5
+    //problem 6
     //nextStage
     func nextStage(){
         myGrid = myGrid.next()
         setNeedsDisplay()
     }
-
+    //end of problem 6
 
 }
