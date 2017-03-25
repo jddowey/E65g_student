@@ -39,7 +39,7 @@ public enum CellState: String {
     
     public func allValues() -> Array<String> {
         let caseArr = [String]()
-        //_ = CellState.alive
+        _ = CellState.alive
         return caseArr
     }
     
