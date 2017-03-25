@@ -22,31 +22,9 @@ public func positionSequence (from: Position, to: Position) -> PositionSequence 
         .flatMap { $0 }
 }
 
-public enum CellState: String {
-    case alive = "alive"
-    case empty = "empty"
-    case born = "born"
-    case died = "died"
+public enum CellState {
+    case alive, empty, born, died
     
-    
-    func description() -> String {
-        switch self {
-        //case .alive, .empty, .born, .died: return self.rawValue
-        default: return self.rawValue
-        }
-    }
-    func toggle(value:CellState)-> CellState{
-        switch self {
-        case .empty, .died: return .alive
-        case .alive, .born: return .empty
-        }
-    }
-    
-    func allValues() -> Array<String> {
-        let caseArr = [String]()
-        _ = CellState.alive
-        return caseArr
-    }
     public var isAlive: Bool {
         switch self {
         case .alive, .born: return true
@@ -145,7 +123,10 @@ extension Grid: Sequence {
             let previous:  GridHistory?
             
             static func == (lhs: GridHistory, rhs: GridHistory) -> Bool {
-                return lhs.positions.elementsEqual(rhs.positions, by: ==)
+                guard lhs.positions.count == rhs.positions.count else { return false }
+                let zipped = zip(lhs.positions, rhs.positions)
+                for pair in zipped { if pair.0.row != pair.1.row || pair.0.col != pair.1.col { return false } }
+                return true
             }
             
             init(_ positions: [Position], _ previous: GridHistory? = nil) {
