@@ -37,7 +37,7 @@ public enum CellState: String {
         }
     }
     
-    static func Allvalues() -> [CellState] {
+    static func allValues() -> [CellState] {
         return [.alive, .empty, .born, .died]
     }
     

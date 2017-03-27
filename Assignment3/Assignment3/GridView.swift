@@ -159,6 +159,7 @@ import UIKit
         return position
     }
     //end of problem 5
+    
     //problem 6
     //nextStage
     func nextStage(){
