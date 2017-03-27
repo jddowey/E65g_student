@@ -37,10 +37,8 @@ public enum CellState: String {
         }
     }
     
-    public func allValues() -> Array<String> {
-        let caseArr = [String]()
-        _ = CellState.alive
-        return caseArr
+    static func Allvalues() -> [CellState] {
+        return [.alive, .empty, .born, .died]
     }
     
     public func toggle (value: CellState)-> CellState {
