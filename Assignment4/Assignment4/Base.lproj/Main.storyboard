@@ -40,15 +40,21 @@
                                                     </label>
                                                     <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" maximumValue="100" stepValue="10" translatesAutoresizingMaskIntoConstraints="NO" id="bFo-Uh-kEj">
                                                         <rect key="frame" x="161.5" y="2" width="94" height="29"/>
+                                                        <connections>
+                                                            <action selector="stepUpOrDown:" destination="9pv-A4-QxB" eventType="valueChanged" id="Ke7-Ni-6Pq"/>
+                                                        </connections>
                                                     </stepper>
                                                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="CD3-S2-1SB">
                                                         <rect key="frame" x="208.5" y="37.5" width="47" height="30"/>
                                                         <nil key="textColor"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <textInputTraits key="textInputTraits"/>
+                                                        <connections>
+                                                            <action selector="editingDidEndOnExit:" destination="9pv-A4-QxB" eventType="editingDidEndOnExit" id="2T7-Tj-Pbo"/>
+                                                        </connections>
                                                     </textField>
                                                 </subviews>
-                                                <color key="backgroundColor" red="1" green="0.70196078429999997" blue="0.2784313725" alpha="0.79845355309999999" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <color key="backgroundColor" red="0.85882352939999995" green="0.85882352939999995" blue="1" alpha="0.80417915240000004" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <constraints>
                                                     <constraint firstAttribute="trailing" secondItem="bFo-Uh-kEj" secondAttribute="trailing" id="ADQ-tV-eYu"/>
                                                     <constraint firstItem="yjk-Jw-qQl" firstAttribute="top" secondItem="JJh-EJ-F4V" secondAttribute="top" id="BLj-rA-1Ka"/>
@@ -67,17 +73,20 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="m9O-nu-qds" userLabel="BottomContainer">
                                                 <rect key="frame" x="0.5" y="171.5" width="255.5" height="85.5"/>
                                                 <subviews>
-                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="y2L-fk-coY">
-                                                        <rect key="frame" x="206.5" y="27.5" width="51" height="31"/>
-                                                    </switch>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Refresh" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yeb-J2-RdT" userLabel="Refresh">
                                                         <rect key="frame" x="0.5" y="0.5" width="128.5" height="85.5"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
+                                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="y2L-fk-coY">
+                                                        <rect key="frame" x="206" y="27" width="51" height="31"/>
+                                                        <connections>
+                                                            <action selector="refreshChanged:" destination="9pv-A4-QxB" eventType="valueChanged" id="wkT-Gq-riK"/>
+                                                        </connections>
+                                                    </switch>
                                                 </subviews>
-                                                <color key="backgroundColor" red="0.79215686269999996" green="0.0" blue="0.79215686269999996" alpha="0.29532320210000002" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <color key="backgroundColor" red="1" green="0.6662077461" blue="0.1902966069" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <constraints>
                                                     <constraint firstItem="y2L-fk-coY" firstAttribute="centerY" secondItem="yeb-J2-RdT" secondAttribute="centerY" id="1ZM-wp-Eyu"/>
                                                     <constraint firstItem="yeb-J2-RdT" firstAttribute="leading" secondItem="m9O-nu-qds" secondAttribute="leading" id="50c-RQ-BOO"/>
@@ -156,6 +165,11 @@
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Instrumentation" image="Instrumentation" id="acW-dT-cKf" userLabel="Instrumentation"/>
+                    <connections>
+                        <outlet property="gridSizeStepper" destination="bFo-Uh-kEj" id="z3t-KJ-yOY"/>
+                        <outlet property="gridSizeTextField" destination="CD3-S2-1SB" id="vX3-vx-rY5"/>
+                        <outlet property="refreshSwitch" destination="y2L-fk-coY" id="PYb-2W-0hZ"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="W5J-7L-Pyd" sceneMemberID="firstResponder"/>
             </objects>

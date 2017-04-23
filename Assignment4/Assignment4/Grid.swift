@@ -145,7 +145,7 @@ protocol EngineProtocol {
     init(rows: Int, cols: Int)
     func step() -> GridProtocol
     //is the updateClosure needed
-    var updateClosure: ((Grid) -> Void)? { get set }
+//    var updateClosure: ((Grid) -> Void)? { get set }
     func reduce2(_ rows: Int, _ cols: Int, combine: (Int, Int, Int) -> Int) -> Int
 }
 
@@ -178,7 +178,7 @@ class StandardEngine: EngineProtocol {
     }
 //
 
-    var updateClosure: ((Grid) -> Void)?
+//    var updateClosure: ((Grid) -> Void)?
 //    var timer: Timer?
 //    var timerInterval: TimeInterval = 0.0 {
 //        didSet {

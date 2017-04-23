@@ -15,7 +15,9 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
     
     
     var engine: EngineProtocol!
-    var timer:Timer?
+    var timer: Timer?
+    var secondTimer: Timer?
+    
     struct CellCounts {
         var numLiving: Int = 0
         var numEmpty: Int = 0
@@ -31,7 +33,7 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
                 return self.engine.grid[row,col] == state ? total+1: total
             }
         }
-        print ("number of cells of the state \(state) is \(cellNum)")
+        print ("The number of cells (state - \(state) ) is \(cellNum)")
         return cellNum
     }
     
@@ -40,75 +42,39 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         let size = gridView.size
-//       let size = StandardEngine.engine.size
         engine = StandardEngine(rows: size, cols: size)
-//        engine = StandardEngine.engine
         engine.delegate = self
-        engine.updateClosure = { (grid) in
-            self.gridView.setNeedsDisplay()
-        }
         gridView.gridDataSource = self
-
-        //not needed
-        //sizeStepper.value = Double(engine.grid.size.rows)
-        
-//        let nc = NotificationCenter.default
-//        let name = Notification.Name(rawValue: "EngineUpdate")
-//        nc.addObserver(
-//            forName: name,
-//            object: nil,
-//            queue: nil) { (n) in
-//                self.gridView.setNeedsDisplay()
-//        }
-        
-        var numEmpty: Int {
-            return engine.reduce2(gridView.size, gridView.size) { total, row, col in
-                return self.engine.grid[row,col] == .empty ? total+1: total
-            }
-        }
-        print ("numEmpty\(numEmpty)")
-        
+        //notification for the statistics
         let nc = NotificationCenter.default
-        let name = Notification.Name(rawValue: "EngineUpdate")
-        let myBlock : (Timer) -> Void = { timer in
-
-            
-//            //iterating through the singleton
-//            (0 ..< size).forEach { i in
-//                (0 ..< size).forEach { j in
-//                    if (self.engine.grid[i,j] == .empty) {
-//                        intCount += 1
-//                        print ("i, j is \(i) \(j) and total \(count)")
-//                    } //
-////                    //                    else if (engine.grid[(i,j)] == .born) {
-////                    //                    colorToBe = bornColor
-////                    //                } else if (engine.grid[(i,j)] == .died) {
-////                    //                    colorToBe = diedColor
-////                    //                }
-//                }
-//                count = intCount
-//            }
-//            m = count
-//            count = 0
-//            var numEmpty: Int {
-//                return self.engine.reduce2(self.engine.rows, self.engine.cols) { total, row, col in
-//                    return self.engine.grid[row,col] == .empty ? total+1: total
-//                }
-//            }
-//            print ("numEmpty\(numEmpty)")
+        let name = Notification.Name(rawValue: "StatisticsUpdate")
+        let myCounts : (Timer) -> Void = { timer in
             let userInfo = ["cellCount": self.steppedGrid,
                             "numEmpty": String(self.steppedGrid.numEmpty),
                             "numLiving": String(self.steppedGrid.numLiving),
                             "numBorn": String(self.steppedGrid.numBorn),
                             "numDead": String(self.steppedGrid.numDead)] as [String : Any]
-            let notification = Notification (name: name, object: nil, userInfo: userInfo)
-            nc.post(notification)
-            
+            let notificationStats = Notification (name: name, object: nil, userInfo: userInfo)
+            nc.post(notificationStats)
         }
-        //end of iterating through the singleton
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: myBlock)
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: myCounts)
+        //notification for the gridSize
+        let myGridSize : (Timer) -> Void = { timer in
+            let userInfo = ["gridSize": String(self.gridView.size)] as [String : Any]
+            let notificationSize = Notification (name: Notification.Name(rawValue: "GridSizeUpdate"), object: nil, userInfo: userInfo)
+            nc.post(notificationSize)
+        }
         
+        secondTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false, block: myGridSize)
         
+        //observer for the gridSize
+        NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "TextFieldUpdate"), object: nil, queue: nil) { fiN in
+            let userInfo = fiN.userInfo!
+            print("\(String(describing: userInfo["textField"]))")
+            let updatedSize = userInfo["textField"] as? String
+            self.gridView.size = Int(updatedSize!)!
+            self.gridView.setNeedsDisplay()
+        }
     }
     
     func engineDidUpdate(withGrid: GridProtocol) {
@@ -122,18 +88,12 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
 
     @IBAction func stepDelegate(_ sender: Any) {
-//        StandardEngine.engine.grid = StandardEngine.engine.grid.next()
-//        gridView.setNeedsDisplay()
-//        engine.grid = engine.grid.next()
         engine.grid = self.engine.step()
-        //        self.gridView.gridDataSource = engine.step()
         gridView.setNeedsDisplay()
-
         steppedGrid.numEmpty = countCells(state: .empty)
         steppedGrid.numLiving = countCells(state: .alive)
         steppedGrid.numBorn = countCells(state: .born)

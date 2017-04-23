@@ -17,9 +17,10 @@ class StatisticsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+
+        //observer for the statistics
         let nc = NotificationCenter.default
-        let name = Notification.Name(rawValue: "EngineUpdate")
+        let name = Notification.Name(rawValue: "StatisticsUpdate")
         nc.addObserver(forName: name, object: nil, queue: nil) { notification in
             let userInfo = notification.userInfo!
             self.countEmpty.text = userInfo["numEmpty"] as? String
@@ -27,13 +28,10 @@ class StatisticsViewController: UIViewController {
             self.countBorn.text = userInfo["numBorn"] as? String
             self.countDead.text = userInfo["numDead"] as? String
         }
-
-
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
 
