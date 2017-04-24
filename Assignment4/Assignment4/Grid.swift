@@ -149,9 +149,11 @@ protocol EngineProtocol {
 class StandardEngine: EngineProtocol {
 
 
-    static var engine: StandardEngine = StandardEngine(rows: 10, cols: 10) {
+    static var engine: StandardEngine = StandardEngine(rows: 10, cols: 10)
+    var delegate: EngineDelegate?
+    var grid: GridProtocol {
         didSet {
-            engine.delegate?.engineDidUpdate(withGrid: engine.grid)
+            delegate?.engineDidUpdate(withGrid: grid)
             let nc = NotificationCenter.default
             let name = Notification.Name(rawValue: "EngineUpdate")
             let n = Notification(name: name,
@@ -161,8 +163,6 @@ class StandardEngine: EngineProtocol {
         }
     }
 
-    var delegate: EngineDelegate?
-    var grid: GridProtocol
     var rows: Int = 10
     var cols: Int = 10
     var refreshTimer: Timer?
