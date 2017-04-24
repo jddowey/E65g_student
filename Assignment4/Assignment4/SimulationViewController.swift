@@ -13,7 +13,6 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
     
     @IBOutlet weak var gridView: GridView!
     
-    
     var engine: EngineProtocol!
     var timer: Timer?
     var secondTimer: Timer?
@@ -45,6 +44,15 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
         engine = StandardEngine(rows: size, cols: size)
         engine.delegate = self
         gridView.gridDataSource = self
+        
+        //observer for the EngineUpdate
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name(rawValue: "EngineUpdate"),
+            object: nil,
+            queue: nil) { (n) in
+                        self.gridView.setNeedsDisplay()
+                        }
+    
         //notification for the statistics
         let nc = NotificationCenter.default
         let name = Notification.Name(rawValue: "StatisticsUpdate")
@@ -58,6 +66,7 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
             nc.post(notificationStats)
         }
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: myCounts)
+        
         //notification for the gridSize
         let myGridSize : (Timer) -> Void = { timer in
             let userInfo = ["gridSize": String(self.gridView.size)] as [String : Any]
@@ -67,20 +76,29 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
         
         secondTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false, block: myGridSize)
         
-        //observer for the gridSize
-        NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "TextFieldUpdate"), object: nil, queue: nil) { fiN in
-            let userInfo = fiN.userInfo!
-            print("\(String(describing: userInfo["textField"]))")
-            let updatedSize = userInfo["textField"] as? String
-            self.gridView.size = Int(updatedSize!)!
-            self.gridView.setNeedsDisplay()
-        }
+        //observer for the gridSize, refreshRate and Swutch value from the InstrumentationView
+        NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "FieldsUpdate"), object: nil, queue: nil) { fiN in
+                    let userInfo = fiN.userInfo!
+                    let updatedSize = userInfo["textField"] as? String
+                    self.gridView.size = Int(updatedSize!)!
+                    self.gridView.setNeedsDisplay()
+                    let updatedRate = userInfo["refreshRate"] as? UISlider
+                    self.engine.refreshRate = Double((updatedRate?.value)!)
+                    let updatedSwitch = userInfo["switch"] as! UISwitch
+                    if updatedSwitch.isOn == false {
+                            self.engine.refreshRate = 0.0
+                        } else {
+                            self.engine.refreshRate = Double((updatedRate?.value)!)
+                            _ = self.stepUp()
+                    }
+   
+                }
     }
-    
+    //conforming to Engine Delegate protocol
     func engineDidUpdate(withGrid: GridProtocol) {
         self.gridView.setNeedsDisplay()
     }
-    
+    //conforming to GridViewDataSource protocol
     public subscript (row: Int, col: Int) -> CellState {
         get { return engine.grid[row,col] }
         set { engine.grid[row,col] = newValue }
@@ -90,14 +108,18 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
         super.didReceiveMemoryWarning()
     }
     
-
-    @IBAction func stepDelegate(_ sender: Any) {
-        engine.grid = self.engine.step()
+    func stepUp (){
+        _ = engine.step()
         gridView.setNeedsDisplay()
         steppedGrid.numEmpty = countCells(state: .empty)
         steppedGrid.numLiving = countCells(state: .alive)
         steppedGrid.numBorn = countCells(state: .born)
         steppedGrid.numDead = countCells(state: .died)
+    }
+
+    @IBAction func stepDelegate(_ sender: Any) {
+        _ = stepUp()
+
     }
 
 }

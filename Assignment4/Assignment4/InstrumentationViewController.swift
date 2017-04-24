@@ -13,7 +13,7 @@ class InstrumentationViewController: UIViewController {
     @IBOutlet weak var gridSizeTextField: UITextField!
     @IBOutlet weak var gridSizeStepper: UIStepper!
     @IBOutlet weak var refreshSwitch: UISwitch!
-    
+    @IBOutlet weak var refreshRate: UISlider!
 
     var timer: Timer?
     
@@ -33,13 +33,12 @@ class InstrumentationViewController: UIViewController {
     }
     
     @IBAction func refreshChanged(_ sender: UISwitch) {
-        _ = readFromSimulationView()
+//        _ = readFromSimulationView()
+        _ = notifyTheChange()
         if refreshSwitch.isOn == true {
-            print ("it is on")
+            print ("switch is on")
         } else {
-            timer?.invalidate()
-            timer = nil
-            print ("timer is off")
+            print ("switch is off")
         }
     }
     
@@ -73,10 +72,12 @@ class InstrumentationViewController: UIViewController {
 
     func notifyTheChange() {
         let fiNc = NotificationCenter.default
-        let fiName = Notification.Name(rawValue: "TextFieldUpdate")
+        let fiName = Notification.Name(rawValue: "FieldsUpdate")
         let fiN = Notification(name: fiName,
                                object: nil,
-                               userInfo: ["textField" : gridSizeTextField.text!])
+                               userInfo: ["textField" : gridSizeTextField.text!,
+                                          "switch" : refreshSwitch!,
+                                          "refreshRate": refreshRate!])
         fiNc.post(fiN)
     }
     

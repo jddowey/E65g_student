@@ -22,18 +22,6 @@ public struct GridSize {
     var cols: Int
 }
 
-//public enum CellState {
-//    case alive, empty, born, died
-//    
-//    public var isAlive: Bool {
-//        switch self {
-//        case .alive, .born: return true
-//        default: return false
-//        }
-//    }
-//}
-//problem 1
-
 public enum CellState: String {
     case alive = "alive"
     case empty = "empty"

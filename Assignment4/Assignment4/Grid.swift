@@ -135,26 +135,32 @@ protocol EngineDelegate {
 
 protocol EngineProtocol {
     var delegate: EngineDelegate? { get set }
-//    var grid: Grid { get set }
     var grid: GridProtocol { get set }
-//    var timerInterval: Double { get set }
     var refreshRate: Double { get set }
     var refreshTimer: Timer? { get set }
     var rows: Int { get set }
     var cols: Int { get set }
     init(rows: Int, cols: Int)
     func step() -> GridProtocol
-    //is the updateClosure needed
-//    var updateClosure: ((Grid) -> Void)? { get set }
+    //added for calculating statistics
     func reduce2(_ rows: Int, _ cols: Int, combine: (Int, Int, Int) -> Int) -> Int
 }
 
 class StandardEngine: EngineProtocol {
 
 
-    static var engine: StandardEngine = StandardEngine(rows: 3, cols: 3)
-    
-//    var grid: Grid
+    static var engine: StandardEngine = StandardEngine(rows: 10, cols: 10) {
+        didSet {
+            engine.delegate?.engineDidUpdate(withGrid: engine.grid)
+            let nc = NotificationCenter.default
+            let name = Notification.Name(rawValue: "EngineUpdate")
+            let n = Notification(name: name,
+                                 object: nil,
+                                 userInfo: ["engine" : self])
+            nc.post(n)
+        }
+    }
+
     var delegate: EngineDelegate?
     var grid: GridProtocol
     var rows: Int = 10
@@ -176,29 +182,6 @@ class StandardEngine: EngineProtocol {
             }
         }
     }
-//
-
-//    var updateClosure: ((Grid) -> Void)?
-//    var timer: Timer?
-//    var timerInterval: TimeInterval = 0.0 {
-//        didSet {
-//            if timerInterval > 0.0 {
-//                timer = Timer.scheduledTimer(
-//                    withTimeInterval: timerInterval,
-//                    repeats: true
-//                ) { (t: Timer) in
-//                    _ = self.step()
-//                }
-//            }
-//            else {
-//                timer?.invalidate()
-//                timer = nil
-//            }
-//        }
-//    }
-//    init(rows: Int, cols: Int) {
-//        self.grid = Grid(GridSize(rows: rows, cols: cols))
-//    }
 
     
     required init(rows: Int, cols: Int) {
@@ -208,16 +191,9 @@ class StandardEngine: EngineProtocol {
     func step() -> GridProtocol {
         let newGrid = grid.next()
         grid = newGrid
-//         updateClosure?(self.grid)
-        delegate?.engineDidUpdate(withGrid: grid)
-        let nc = NotificationCenter.default
-        let name = Notification.Name(rawValue: "EngineUpdate")
-        let n = Notification(name: name,
-                             object: nil,
-                             userInfo: ["engine" : self])
-        nc.post(n)
         return grid
     }
+    //added for calculating statistics
     func reduce2(_ rows: Int, _ cols: Int, combine: (Int, Int, Int) -> Int) -> Int  {
         return (0 ..< rows).reduce(0) { (total: Int, row: Int) -> Int in
             return (0 ..< cols).reduce(total) { (subtotal, col) -> Int in
