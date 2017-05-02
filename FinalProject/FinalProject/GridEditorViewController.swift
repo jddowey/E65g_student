@@ -8,20 +8,39 @@
 
 import UIKit
 
-class GridEditorViewController: UIViewController {
+class GridEditorViewController: UIViewController, GridViewDataSource {
+    
+    var engine: EngineProtocol!
     
     var variationValue: String?
+    
+    var saveClosure: ((String) -> Void)?
+    
+
 
     @IBOutlet weak var variationValueTextField: UITextField!
+    @IBOutlet weak var gridEditorView: GridView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        engine = StandardEngine.engine
+       gridEditorView.gridDataSource = self
+//        gridView.size = engine.grid.size.rows
+
         navigationController?.isNavigationBarHidden = false
         if let variationValue = variationValue {
             variationValueTextField.text = variationValue
+            
         }
+        
 
-        // Do any additional setup after loading the view.
+    }
+    
+    //conforming to GridViewDataSource protocol
+    public subscript (row: Int, col: Int) -> CellState {
+        get { return engine.grid[row,col] }
+        set { engine.grid[row,col] = newValue }
     }
 
     override func didReceiveMemoryWarning() {
@@ -29,6 +48,10 @@ class GridEditorViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
+    @IBAction func saveUserGridVariation(_ sender: Any) {
+        print("save button works")
+    }
+
 
     /*
     // MARK: - Navigation

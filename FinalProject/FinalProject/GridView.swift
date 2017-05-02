@@ -15,11 +15,7 @@ public protocol GridViewDataSource {
 @IBDesignable class GridView: UIView{
     
     
-    @IBInspectable var size: Int = 5 {
-        didSet {
-            gridDataSource = Grid(GridSize(rows: size, cols: size))
-        }
-    }
+    @IBInspectable var size: Int = 5
     @IBInspectable var livingColor: UIColor = UIColor.red
     @IBInspectable var emptyColor: UIColor = UIColor.gray
     @IBInspectable var bornColor: UIColor = UIColor.green
@@ -27,108 +23,110 @@ public protocol GridViewDataSource {
     @IBInspectable var gridColor: UIColor = UIColor.darkGray
     @IBInspectable var gridWidth: CGFloat = 3.0
     
-    var selectedVariation: String = ""
+//    var selectedVariation: String?
     var gridDataSource: GridViewDataSource?
-    
-    var newGridToUpdate: GridViewDataSource?
-
-
-
-//    let gridVariations: [String: [[Int]]] = [
-//        "Blinker": [[11, 11], [12, 11], [11, 12], [12, 12], [13, 12], [11, 13], [12, 13]],
-//        "Pentadecthlon": [[11, 10], [11, 15], [12, 8], [12, 9], [12, 11], [12, 12], [12, 13], [12, 14], [12, 16], [12, 17], [13, 10], [13, 15]],
-//        "Glider Gun": [[50, 11], [50, 12], [52, 12], [16, 13], [38, 13], [40, 13], [50, 13], [51, 13], [16, 14], [18, 14], [38, 14], [39, 14], [16, 15], [17, 15], [24, 15], [26, 15], [39, 15], [24, 16], [25, 16], [25, 17], [52, 37], [53, 37], [54, 37], [52, 38], [18, 39], [19, 39], [20, 39], [39, 39], [40, 39], [53, 39], [18, 40], [39, 40], [41, 40], [45, 40], [19, 41], [25, 41], [26, 41], [39, 41], [44, 41], [45, 41], [25, 42], [27, 42], [31, 42], [44, 42], [46, 42], [25, 43], [30, 43], [31, 43], [36, 43], [37, 43], [30, 44], [32, 44], [36, 44], [38, 44], [36, 45], [55, 46], [56, 46], [55, 47], [57, 47], [55, 48], [44, 51], [45, 51], [46, 51], [44, 52], [45, 53]],
-//        "Tumbler": [[11, 12], [11, 13], [11, 15], [11, 16], [12, 12], [12, 13], [12, 15], [12, 16], [13, 13], [13, 15], [14, 11], [14, 13], [14, 15], [14, 17], [15, 11], [15, 13], [15, 15], [15, 17], [16, 11], [16, 12], [16, 16], [16, 17]]
-//    ]
-    //        print("gridVariations\(gridVariations["Blinker"])")
+    var gridVariations = GridVariation.gridVariationSingleton
+    var engine = StandardEngine.engine
+    var emptyDataSource:String = ""
+    var numberEmpty:Int = 0
     
 
-    func receivedValues(){
-        if gridVariations.variationsData != nil {
-                print("RECEIVED VARIATIONS \(String(describing: gridVariations.variationsData))")
-        }
+
+func establishSize (_ modification: [[Int]]) -> Int {
+    var calculatedSize: Int {
+        var maxNumber: Int = 0
+        var numArr: [Int] = [0]
+            (0 ..< modification.count).forEach { i in
+            maxNumber = modification[i].reduce(0){$0 > $1 ? $0 : $1}
+                        numArr.append(maxNumber)
+        
+                        }
+        maxNumber = numArr.max()!
+        return (maxNumber + 1) * 2
+
     }
-    
-    func getVariationsGrid(_ newVariation: [[Int]]) {
-
-            var maxNumber: Int = 0
-            var numArr: [Int] = [0]
-            (0 ..< newVariation.count).forEach { i in
-                maxNumber = newVariation[i].reduce(0){$0 > $1 ? $0 : $1}
-                numArr.append(maxNumber)
-                //                print("\(numArr)")
-            
-            }
-            maxNumber = numArr.max()!
-            size = maxNumber + 1
-            print("size is \(size)")
-//        (0 ..< size).forEach { i in
-//            (0 ..< size).forEach { j in
-                (0 ..< newVariation.count).forEach { i in
-                   let varRow = newVariation[i][0]
-                   let varCol = newVariation[i][1]
-                   gridDataSource?[varRow, varCol] = .alive
-                }
-        
-           newGridToUpdate = gridDataSource
-        
-//           }
+    return calculatedSize
+}
+    func setGridDataSource (_ modification: [[Int]]){
+        engine.grid = Grid(GridSize(rows: size, cols: size))
+        (0 ..< modification.count).forEach { i in
+            let varRow = modification[i][0]
+            let varCol = modification[i][1]
+            gridDataSource?[varRow, varCol] = .alive
+        }
+        numberEmpty = countCells(state: .empty)
+        //to check that the grid is drawing correctly
+//                (0 ..< size+1).forEach { i in
+//        
+//                    (0 ..< size+1).forEach { j in
+//                        print("gridDataSource of [\(i), \(j)] is \(gridDataSource?[i,j])")
+//                        }
 //        }
-//to check that the grid is drawing correctly
-//        (0 ..< size+1).forEach { i in
+        
+        
+    }
+
 //
-//                (0 ..< size+1).forEach { j in
-//                print("gridDataSource of [\(i), \(j)] is \(gridDataSource?[i,j])")
-//                }
-//        }
+//
+////to check that the grid is drawing correctly
+////        (0 ..< size+1).forEach { i in
+////
+////                (0 ..< size+1).forEach { j in
+////                print("gridDataSource of [\(i), \(j)] is \(gridDataSource?[i,j])")
+////                }
+////        }
+//
+//            
+//
 
-            
-
-    }
-
+//
     func choosenVariation(_ selectedVariation: String?){
-        
-//        _ = receivedValues()
-        
-        if gridVariations != nil {
-        
-            if let newVariation = gridVariations.variationsData[selectedVariation!] {
-                _ = getVariationsGrid(newVariation)
-            }
-        
-        }
 
+            if let receivedVariation = gridVariations.variationsData[selectedVariation!]?.values {
+                let newVariation = receivedVariation.map{$0}.reversed()[0]
+                size = establishSize(newVariation)
+                _ = setGridDataSource(newVariation)
+            }
     }
     
+    func countCells(state: CellState)->Int{
+        var cellNum: Int {
+            return engine.reduce2(size, size) { total, row, col in
+                return engine.grid[row,col] == state ? total+1: total
+            }
+        }
+        print ("The number of cells (state - \(state) ) is \(cellNum)")
+        return cellNum
+    }
+    
+//
     
     
     /*
      // Only override draw() if you perform custom drawing.
      // An empty implementation adversely affects performance during animation.
      */
-    
+
     
     override func draw(_ rect: CGRect) {
-        print("\(self.selectedVariation)")
         
-        if self.selectedVariation != "" {
-            _ = choosenVariation(self.selectedVariation)
-            self.selectedVariation = ""
-        } else if self.selectedVariation == "" {
-            
-            //observer for the selectedVariationGrid
-            NotificationCenter.default.addObserver(forName: Notification.Name(rawValue: "GridVariationUpdate"), object: nil, queue: nil) { notification in
-                let userInfo = notification.userInfo!
-                self.selectedVariation = (userInfo["selectedVariation"] as? String)!
-                print ("INSIDE the observer \(String(describing: self.selectedVariation))")
-            }
-            //end observer
-            print("CHANGED")
+        //check that the data source is not empty
+        if numberEmpty == 0 {
+            numberEmpty = countCells(state: .empty)
+            emptyDataSource = "empty grid"
         }
-
-
-
-
+        
+        //loading data from the selected Variations of grid
+        if numberEmpty ==  size*size {
+            if emptyDataSource != "" {
+                if let selectedVariation = selectedVariation {
+                    _ = choosenVariation(selectedVariation)
+                    print("Selected variation \(selectedVariation)")
+                    print("SIZE in the draw functuion is : \(size)")
+                    
+                }
+            }
+        }
         
         // Drawing code
         //base
@@ -244,19 +242,15 @@ public protocol GridViewDataSource {
         if gridDataSource != nil {
             
             let toggledCell = gridDataSource?[pos.row, pos.col].toggle(value: (gridDataSource?[pos.row, pos.col])!)
-            print("toggled cell \(toggledCell)")
+//            print("toggled cell \(toggledCell)")
             gridDataSource?[pos.row, pos.col] = toggledCell!
             gridDataSource = gridDataSource.map {$0}
 //            gridDataSource = newGridToUpdate
 //            newGridToUpdate?[pos.row, pos.col] = toggledCell!
-            print("state of the grid \(self.gridDataSource?[pos.row, pos.col])")
-            if self.gridDataSource?[pos.row, pos.col] == gridDataSource?[pos.row, pos.col]
-            {
-                print("yes, it's the same")
-            }
+//            print("state of the grid \(self.gridDataSource?[pos.row, pos.col])")
             setNeedsDisplay()
         }
-print("position \(pos)")
+//print("position \(pos)")
         return pos
     }
     

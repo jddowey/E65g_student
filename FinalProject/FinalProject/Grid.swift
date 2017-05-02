@@ -127,6 +127,16 @@ public extension Grid {
         }
     }
 }
+//public extension Grid {
+//    func setConfiguration(){ lazyPositions(self.size).forEach {
+//        switch self[$0.row,$0.col]{
+//        case .born:
+//            configuration["born" = configuration["born"] ?? []] + [[$.0.row, $0.col]]
+//        }
+//    }
+//    }
+//}
+
 
 
 protocol EngineDelegate {
@@ -198,13 +208,13 @@ class StandardEngine: EngineProtocol {
     func step() -> GridProtocol {
         let newGrid = grid.next()
         grid = newGrid
-//        delegate?.engineDidUpdate(withGrid: grid)
-//        let nc = NotificationCenter.default
-//        let name = Notification.Name(rawValue: "EngineUpdate")
-//        let n = Notification(name: name,
-//                             object: nil,
-//                             userInfo: ["engine" : self])
-//        nc.post(n)
+        delegate?.engineDidUpdate(withGrid: grid)
+        let nc = NotificationCenter.default
+        let name = Notification.Name(rawValue: "EngineUpdate")
+        let n = Notification(name: name,
+                             object: nil,
+                             userInfo: ["engine" : self])
+        nc.post(n)
         return grid
     }
     //added for calculating statistics
