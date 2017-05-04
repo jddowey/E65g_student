@@ -55,8 +55,13 @@ public enum CellState: String {
 }
 public protocol GridProtocol: CustomStringConvertible {
     init(_ size: GridSize, cellInitializer: (GridPosition) -> CellState)
-    var size: GridSize { get }
+    //changed to set the size of the grid prompted by Instrumentation view text fields
+    var size: GridSize { get  set }
     subscript (row: Int, col: Int) -> CellState { get set }
     func next() -> Self
+    //added to calculate positions
+    func returnPositions(state: CellState) -> [GridPosition]
+    //added to set the Grid
+    func setConfiguration()
 }
 

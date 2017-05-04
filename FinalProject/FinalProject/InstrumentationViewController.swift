@@ -8,47 +8,97 @@
 
 import UIKit
 
-var selectedVariation: String?
+let finalProjectURL = "https://dl.dropboxusercontent.com/u/7544475/S65g.json"
+var jsonArray: NSArray = []
 
 
 class InstrumentationViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
-    @IBOutlet weak var gridSizeTextField: UITextField!
-    @IBOutlet weak var gridSizeStepper: UIStepper!
-    @IBOutlet weak var refreshSwitch: UISwitch!
-    @IBOutlet weak var refreshRate: UISlider!
 
+    @IBOutlet weak var gridRowsTextField: UITextField!
+    @IBOutlet weak var gridColsTextField: UITextField!
+    @IBOutlet weak var gridRowsStepper: UIStepper!
+    @IBOutlet weak var gridColsStepper: UIStepper!
+    @IBOutlet weak var refreshRate: UISlider!
+    @IBOutlet weak var refreshSwitch: UISwitch!
+    @IBOutlet weak var refreshRateLabel: UILabel!
     @IBOutlet weak var congifurationsView: UITableView!
     
     var engine: EngineProtocol!
     var timer: Timer?
-    var variationTimer: Timer?
-
+//    var variationTimer: Timer?
     
     var gridVariations: GridVariation!
     var sectionHeaders: [String] = []
     var gridVariationValue : String = ""
     
+    var jsonDictionaryArray: [String : [[Int]]] = [:]
+    var createdTitles: [String] = []
+    
+    var rows:Int = 5
+    var cols:Int = 5
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.isNavigationBarHidden = true
         
-        //access to StandardEngine singleton
-        engine = StandardEngine.engine
-        gridSizeTextField.text = String(engine.grid.size.rows)
-        gridSizeStepper.value = Double(engine.grid.size.rows)
+        //access to the GridVariations (json and user saved data) static instance
+//        gridVariations = GridVariation.gridVariationSingleton
         
-        //access to the GridVariations (json and user saved data) singleton
-        gridVariations = GridVariation.gridVariationSingleton
-        if (sectionHeaders.count == 0) {
-            gridVariations.titlesUpdateClosure = { (gridTitles) in
-                self.sectionHeaders = gridTitles
+        //fetcher
+        let fetcher = Fetcher()
+        fetcher.fetchJSON(url: URL(string:finalProjectURL)!) { (json: Any?, message: String?) in
+            guard message == nil else {
+                print(message ?? "nil")
+                return
+            }
+            guard let json = json else {
+                print("no json")
+                return
+            }
+            jsonArray = json as! NSArray
+            if (jsonArray.count != 0) {
+                for i in 0..<jsonArray.count {
+                    let jsonDictionary = jsonArray[i] as! NSDictionary
+                    self.jsonDictionaryArray.updateValue(jsonDictionary["contents"] as! [[Int]], forKey: jsonDictionary["title"] as! String)
+                }
+                for (name, variation) in self.jsonDictionaryArray {
+                    let fullStack = ["alive": variation]
+                    self.gridVariations.variationsData.updateValue(fullStack, forKey: name)
+                }
+                self.gridVariations.variationsData["initial row"] = nil
+            }
+            OperationQueue.main.addOperation {
                 self.congifurationsView.reloadData()
+
+                
             }
         }
+        //
+           OperationQueue.main.addOperation {
+        let userGrid: StandardEngine = StandardEngine(rows: (Int(self.gridRowsTextField.text!) ?? 10), cols: (Int(self.gridColsTextField.text!) ?? 10))
+                    configuration.removeAll()
         
+                    _ = userGrid.grid.setConfiguration()
+                    print("configuration \(configuration)")
+        }
+
         
-        timer = StandardEngine.engine.refreshTimer
+        //access to the GridVariations (json and user saved data) static instance
+        gridVariations = GridVariation.gridVariationSingleton
+        gridVariations.variationsUpdateClosure = { (gridVariations) in
+            self.sectionHeaders = Array(gridVariations.keys)
+            self.congifurationsView.reloadData()
+        }
+
+        //access to StandardEngine static instance
+        OperationQueue.main.addOperation {
+            self.engine = StandardEngine.engine
+            self.gridRowsTextField.text = String(self.engine.grid.size.rows)
+            self.gridColsTextField.text = String(self.engine.grid.size.cols)
+            self.gridRowsStepper.value = Double(self.engine.grid.size.rows)
+            self.gridColsStepper.value = Double(self.engine.grid.size.cols)
+        }
         
     }
     //end of viewDidLoad
@@ -56,52 +106,23 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
     override func viewWillAppear(_ animated: Bool) {
         navigationController?.isNavigationBarHidden = true
         
-    }
-    
-    @IBAction func stepUpOrDown(_ sender: UIStepper) {
-        gridSizeTextField.text = String(Int(sender.value))
-        gridSizeStepper.value = Double(sender.value)
-        engine.grid = Grid(GridSize(rows: Int(sender.value), cols: Int(sender.value)))
-    }
-    @IBAction func editingDidEndOnExit(_ sender: UITextField) {
-        guard let text = sender.text else { return }
-        guard let val = Int(text) else {
-            showErrorAlert(withMessage: "Invalid value: \(text), please try again.") {
-                sender.text = self.gridSizeTextField.text
-            }
-            return
+        //observer for the GridUpdate in GridView
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name(rawValue: "GridUpdate"),
+            object: nil,
+            queue: nil) { (n) in
+                self.gridRowsTextField.text = String(self.engine.grid.size.rows)
+                self.gridColsTextField.text = String(self.engine.grid.size.cols)
+                self.gridRowsStepper.value = Double(self.engine.grid.size.rows)
+                self.gridColsStepper.value = Double(self.engine.grid.size.cols)
+
         }
-        gridSizeTextField.text = String(val)
-        gridSizeStepper.value = Double(val)
-        engine.grid = Grid(GridSize(rows: Int(val), cols: Int(val)))
         
     }
     
-    @IBAction func refreshChanged(_ sender: UISwitch) {
-//        _ = readFromSimulationView()
-//        _ = notifyTheChange()
-        if refreshSwitch.isOn == true {
-        engine.refreshTimer?.invalidate()
-        engine.refreshTimer = nil
-        engine.refreshRate = TimeInterval(refreshRate.value)
-            print ("switch is on")
-        } else {
-            StandardEngine.engine.refreshRate = TimeInterval(0.0)
-//            StandardEngine.engine.refreshTimer?.invalidate()
-//            StandardEngine.engine.refreshTimer = nil
-            print ("switch is off")
-        }
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
     }
-    
-    @IBAction func refreshRateChanged(_ sender: UISlider) {
-//        StandardEngine.engine.refreshTimer?.invalidate()
-//        StandardEngine.engine.refreshTimer = nil
-          engine.refreshRate = TimeInterval(sender.value)
-    }
-    
-    
-
-
     
     //MARK: AlertController Handling
     func showErrorAlert(withMessage msg:String, action: (() -> Void)? ) {
@@ -117,12 +138,106 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
         alert.addAction(okAction)
         self.present(alert, animated: true, completion: nil)
     }
-
+    func createEmptyGridAlert() {
+  
+        
+        let alertController = UIAlertController(title: "Create an empty grid!", message: "The size of the grid is 10x10", preferredStyle: .alert)
+        
+        let confirmAction = UIAlertAction(title: "Confirm", style: .default, handler: {
+            alert -> Void in
+            let userConfigName = alertController.textFields![0] as UITextField
+            self.gridVariations.variationsData.updateValue([:], forKey: userConfigName.text!)
+            })
+        
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
 
     
+        alertController.addTextField(configurationHandler: { (textField : UITextField!) -> Void in
+            textField.placeholder = "Enter Configuration Name"
+        })
+        alertController.addAction(confirmAction)
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true, completion: nil)
+ 
+    }
 
+//ACTIONS
     
+    @IBAction func rowsEditingEnded(_ sender: UITextField) {
+        
+        guard let text = sender.text else { return }
+        guard let val = Int(text) else {
+            showErrorAlert(withMessage: "Invalid value: \(text), please try again.") {
+                sender.text = self.gridRowsTextField.text
+            }
+            return
+        }
+        gridRowsTextField.text = String(val)
+        gridRowsStepper.value = Double(val)
+        
+        self.engine.grid.size.rows = Int(val)
+        self.rows = Int(val)
+        self.engine.grid = Grid(GridSize(rows: self.rows, cols: self.cols))
+    }
+    
+    
+    @IBAction func colsEditingEnded(_ sender: UITextField) {
+        guard let text = sender.text else { return }
+        guard let val = Int(text) else {
+            showErrorAlert(withMessage: "Invalid value: \(text), please try again.") {
+                sender.text = self.gridColsTextField.text
+            }
+            return
+        }
+        gridColsTextField.text = String(val)
+        gridColsStepper.value = Double(val)
 
+        self.engine.grid.size.cols = Int(val)
+        self.cols = Int(val)
+        self.engine.grid = Grid(GridSize(rows: self.rows, cols: self.cols))
+    }
+    
+    @IBAction func rowsStepperChange(_ sender: UIStepper) {
+        gridRowsTextField.text = String(Int(sender.value))
+        gridRowsStepper.value = sender.value
+        
+        self.engine.grid.size.rows = Int(sender.value)
+        self.rows = Int(sender.value)
+        self.engine.grid = Grid(GridSize(rows: self.rows, cols: self.cols))
+    }
+    
+    @IBAction func colsStepperChange(_ sender: UIStepper) {
+        gridColsTextField.text = String(Int(sender.value))
+        gridColsStepper.value = sender.value
+        
+        self.engine.grid.size.cols = Int(sender.value)
+        self.cols = Int(sender.value)
+        self.engine.grid = Grid(GridSize(rows: self.rows, cols: self.cols))
+    }
+    
+    @IBAction func refreshRateChanged(_ sender: UISlider) {
+        self.refreshRateLabel.text = String(format: "%.2f", sender.value)
+        if self.refreshSwitch.isOn == true {
+            self.engine.refreshRate = TimeInterval(sender.value)
+            print(self.engine.refreshRate)
+        }
+    }
+    @IBAction func refreshSwitchChanged(_ sender: UISwitch) {
+         if refreshSwitch.isOn == true {
+            self.engine.refreshRate = Double(self.refreshRate.value)
+        } else {
+            self.engine.refreshRate = 0.0
+        }
+    }
+    
+    @IBAction func addVariation(_ sender: UIButton) {
+        OperationQueue.main.addOperation {
+        _ = self.createEmptyGridAlert()
+        }
+
+    }
     
      // MARK: - Table view data source
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -141,23 +256,9 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
         
         return cell
     }
-    
+    //no need for this function, used for debugging
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         NSLog("You selected cell number: \(indexPath.row)!")
-            gridVariationValue = sectionHeaders[indexPath.row]
-            selectedVariation = sectionHeaders[indexPath.row]
-        
-                        //notification for the gridVariationValue
-                        let nc = NotificationCenter.default
-                        let choosenVariation : (Timer) -> Void = { timer in
-                            let userInfo = ["selectedVariation": self.gridVariationValue as String] as [String : Any]
-                            let notificationVariation = Notification (name: Notification.Name(rawValue: "GridVariationUpdate"), object: nil, userInfo: userInfo)
-                            nc.post(notificationVariation)
-                        }
-        
-                        variationTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false, block: choosenVariation)
-
-//        self.performSegueWithIdentifier("yourIdentifier", sender: self)
     }
 
     
@@ -167,24 +268,17 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let indexPath = self.congifurationsView.indexPathForSelectedRow
             if let indexPath = indexPath {
-           gridVariationValue = sectionHeaders[indexPath.row]
-
-//
-//                //notification for the gridVariationValue
-//                let nc = NotificationCenter.default
-//                let choosenVariation : (Timer) -> Void = { timer in
-//                    let userInfo = ["selectedVariation": self.gridVariationValue as String] as [String : Any]
-//                    let notificationVariation = Notification (name: Notification.Name(rawValue: "GridVariationUpdate"), object: nil, userInfo: userInfo)
-//                    nc.post(notificationVariation)
-//                }
-//
-//                variationTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: false, block: choosenVariation)
+           gridVariations.selectedVariation = sectionHeaders[indexPath.row]
                 
             if let vc = segue.destination as? GridEditorViewController {
-                vc.variationValue = gridVariationValue
+                vc.variationValue = gridVariations.selectedVariation
    
-                print (gridVariationValue)
+                print (gridVariations.selectedVariation)
                 print(vc.gridEditorView)
+                vc.saveClosure = { newValue in
+                    self.sectionHeaders[indexPath.row] = newValue
+                    self.congifurationsView.reloadData()
+                }
 //                if vc.gridEditorView != nil {
 
 //                vc.gridEditorView.selectedVariation = gridVariationValue
@@ -199,10 +293,7 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
         }
     }
 
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-    }
+
 
 }
 

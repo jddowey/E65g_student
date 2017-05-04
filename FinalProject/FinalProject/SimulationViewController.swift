@@ -15,68 +15,48 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
     
     var engine: EngineProtocol!
     var timer: Timer?
-    
-    struct CellCounts {
-        var numLiving: Int = 0
-        var numEmpty: Int = 0
-        var numBorn: Int = 0
-        var numDead: Int = 0
-    }
-    var steppedGrid = CellCounts()
+//    var configuration: [String: [[Int]]] = [:]
 
-    
-    func countCells(state: CellState)->Int{
-        var cellNum: Int {
-            return engine.reduce2(gridView.size, gridView.size) { total, row, col in
-                return engine.grid[row,col] == state ? total+1: total
-            }
-        }
-        print ("The number of cells (state - \(state) ) is \(cellNum)")
-        return cellNum
-    }
-    
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-//        let size = gridView.size
-//        engine = StandardEngine(rows: size, cols: size)
-        engine = StandardEngine.engine
-        engine.delegate = self
-        gridView.gridDataSource = self
-//        engine = StandardEngine(rows: gridView.size, cols: gridView.size)
-//        engine.rows = gridView.size
-//        engine.cols = gridView.size
-         gridView.size = engine.grid.size.rows
-//        gridView.newGridToUpdate = self
+        
+        DispatchQueue.main.async(){
+            self.engine = StandardEngine.engine
+            self.engine.delegate = self
+            self.gridView.gridDataSource = self
+        }
+
+        
+    }
+    override func viewDidAppear(_ animated: Bool) {
+        //        observer for the SizeUpdate
+        //        NotificationCenter.default.addObserver(
+        //            forName: Notification.Name(rawValue: "SizeUpdate"),
+        //            object: nil,
+        //            queue: nil) { (n) in
+        //                print(n.userInfo?["size"] as! Int)
+        //                let updatedSize = n.userInfo?["size"] as! Int
+        //                self.engine.grid = Grid(GridSize(rows: updatedSize, cols: updatedSize))
+        //                self.gridView.setNeedsDisplay()
+        //        }
         
         //observer for the EngineUpdate
         NotificationCenter.default.addObserver(
             forName: Notification.Name(rawValue: "EngineUpdate"),
             object: nil,
             queue: nil) { (n) in
-//                self.engine.rows = self.gridView.size
-//                self.gridView.size = self.engine.grid.size.rows
                 self.gridView.setNeedsDisplay()
         }
-        
-
-    
-        //notification for the statistics
-        let nc = NotificationCenter.default
-        let name = Notification.Name(rawValue: "StatisticsUpdate")
-        let myCounts : (Timer) -> Void = { timer in
-            let userInfo = ["cellCount": self.steppedGrid,
-                            "numEmpty": String(self.steppedGrid.numEmpty),
-                            "numLiving": String(self.steppedGrid.numLiving),
-                            "numBorn": String(self.steppedGrid.numBorn),
-                            "numDead": String(self.steppedGrid.numDead)] as [String : Any]
-            let notificationStats = Notification (name: name, object: nil, userInfo: userInfo)
-            nc.post(notificationStats)
+        //observer for the GridUpdate in GridView
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name(rawValue: "GridUpdate"),
+            object: nil,
+            queue: nil) { (n) in
+                self.gridView.setNeedsDisplay()
         }
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: myCounts)
-        
-        
+
     }
     //conforming to Engine Delegate protocol
     func engineDidUpdate(withGrid: GridProtocol) {
@@ -95,23 +75,58 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
     }
     
     func stepUp (){
- //       StandardEngine.engine.grid = gridView.gridDataSource as! GridProtocol
-        
-//        self.grid = self.gridView
-//        _ = engine.step()
-//        self.gridView.gridDataSource = StandardEngine.engine.grid as! GridViewDataSource
         engine.grid = engine.step()
         gridView.setNeedsDisplay()
-        steppedGrid.numEmpty = countCells(state: .empty)
-        steppedGrid.numLiving = countCells(state: .alive)
-        steppedGrid.numBorn = countCells(state: .born)
-        steppedGrid.numDead = countCells(state: .died)
     }
+    func showAlert() {
+        let alertController = UIAlertController(title: "Would you like to save the grid?", message: "Please enter the name of the grid configuration:", preferredStyle: .alert)
+        
+        let confirmAction = UIAlertAction(title: "Confirm", style: .default) { (_) in
+            if let field = alertController.textFields?[0] {
+                // store the data
+                configuration.removeAll()
+                
+                _ = self.engine.grid.setConfiguration()
+                print("configuration \(configuration)")
+                UserDefaults.standard.set(field.text, forKey: field.text!)
+                UserDefaults.standard.synchronize()
+            } else {
+                // user did not fill field
+            }
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (_) in }
+        
+        alertController.addTextField { (textField) in
+            textField.placeholder = "Configuration Name"
+        }
+        
+        alertController.addAction(confirmAction)
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true, completion: nil)
+    }
+
 
     @IBAction func stepDelegate(_ sender: Any) {
         _ = stepUp()
 
     }
+    
+    @IBAction func saveGrid(_ sender: Any) {
+
+            configuration.removeAll()
+
+                _ = engine.grid.setConfiguration()
+            print("configuration \(configuration)")
+
+        
+    }
+    
+    @IBAction func resetGrid(_ sender: Any) {
+        engine.grid = Grid(GridSize(rows: gridView.rows, cols: gridView.cols))
+    }
+    
 
 }
 

@@ -10,17 +10,17 @@ import Foundation
 
 class GridVariation {
     
-    static var gridVariationSingleton: GridVariation = GridVariation(data: ["initial row": ["alive": [[0, 0]]]], titles: ["initial row"])
-    var variationsData: [String : [String : [[Int]]]]
-    var titles: [String] {
+    static var gridVariationSingleton: GridVariation = GridVariation(data: ["initial row": ["alive": [[0, 0]]]])
+    var variationsData: [String : [String : [[Int]]]] {
         didSet {
-            titlesUpdateClosure?(self.titles)
-            }
+            variationsUpdateClosure?(self.variationsData)
+        }
     }
-    var titlesUpdateClosure: (([String]) -> Void)?
+    var selectedVariation: String?
+    var variationsUpdateClosure: (([String : [String : [[Int]]]]) -> Void)?
     
-    init (data: [String : [String : [[Int]]]], titles: [String]){
+    init (data: [String : [String : [[Int]]]]) {
         self.variationsData = data
-        self.titles = titles
+
     }
 }

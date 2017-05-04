@@ -15,7 +15,13 @@ public protocol GridViewDataSource {
 @IBDesignable class GridView: UIView{
     
     
-    @IBInspectable var size: Int = 5
+//    @IBInspectable var size: Int = 5 {
+//        didSet{
+//            engine.grid = Grid(GridSize(rows: size, cols: size))
+//        }
+//    }
+    @IBInspectable var rows: Int = 5
+    @IBInspectable var cols: Int = 5
     @IBInspectable var livingColor: UIColor = UIColor.red
     @IBInspectable var emptyColor: UIColor = UIColor.gray
     @IBInspectable var bornColor: UIColor = UIColor.green
@@ -28,33 +34,24 @@ public protocol GridViewDataSource {
     var gridVariations = GridVariation.gridVariationSingleton
     var engine = StandardEngine.engine
     var emptyDataSource:String = ""
-    var numberEmpty:Int = 0
     
 
 
 func establishSize (_ modification: [[Int]]) -> Int {
     var calculatedSize: Int {
-        var maxNumber: Int = 0
-        var numArr: [Int] = [0]
-            (0 ..< modification.count).forEach { i in
-            maxNumber = modification[i].reduce(0){$0 > $1 ? $0 : $1}
-                        numArr.append(maxNumber)
-        
-                        }
-        maxNumber = numArr.max()!
+        let maxNumber = modification.flatMap{$0}.reduce(0){$0 > $1 ? $0 : $1}
         return (maxNumber + 1) * 2
-
     }
     return calculatedSize
 }
     func setGridDataSource (_ modification: [[Int]]){
-        engine.grid = Grid(GridSize(rows: size, cols: size))
+        engine.grid = Grid(GridSize(rows: rows, cols: cols))
         (0 ..< modification.count).forEach { i in
             let varRow = modification[i][0]
             let varCol = modification[i][1]
             gridDataSource?[varRow, varCol] = .alive
         }
-        numberEmpty = countCells(state: .empty)
+ //       numberEmpty = engine.grid.returnPositions(state: .empty).count
         //to check that the grid is drawing correctly
 //                (0 ..< size+1).forEach { i in
 //        
@@ -66,40 +63,16 @@ func establishSize (_ modification: [[Int]]) -> Int {
         
     }
 
-//
-//
-////to check that the grid is drawing correctly
-////        (0 ..< size+1).forEach { i in
-////
-////                (0 ..< size+1).forEach { j in
-////                print("gridDataSource of [\(i), \(j)] is \(gridDataSource?[i,j])")
-////                }
-////        }
-//
-//            
-//
-
-//
     func choosenVariation(_ selectedVariation: String?){
 
             if let receivedVariation = gridVariations.variationsData[selectedVariation!]?.values {
+                print("\(receivedVariation)")
                 let newVariation = receivedVariation.map{$0}.reversed()[0]
-                size = establishSize(newVariation)
+                rows = establishSize(newVariation)
+                cols = establishSize(newVariation)
                 _ = setGridDataSource(newVariation)
             }
     }
-    
-    func countCells(state: CellState)->Int{
-        var cellNum: Int {
-            return engine.reduce2(size, size) { total, row, col in
-                return engine.grid[row,col] == state ? total+1: total
-            }
-        }
-        print ("The number of cells (state - \(state) ) is \(cellNum)")
-        return cellNum
-    }
-    
-//
     
     
     /*
@@ -111,33 +84,31 @@ func establishSize (_ modification: [[Int]]) -> Int {
     override func draw(_ rect: CGRect) {
         
         //check that the data source is not empty
-        if numberEmpty == 0 {
-            numberEmpty = countCells(state: .empty)
+        let numberEmpty = engine.grid.returnPositions(state: .empty).count
+        rows = self.engine.grid.size.rows
+        cols = self.engine.grid.size.cols
+
+        
+        if numberEmpty == rows * cols {
             emptyDataSource = "empty grid"
         }
-        
-        //loading data from the selected Variations of grid
-        if numberEmpty ==  size*size {
-            if emptyDataSource != "" {
-                if let selectedVariation = selectedVariation {
-                    _ = choosenVariation(selectedVariation)
-                    print("Selected variation \(selectedVariation)")
-                    print("SIZE in the draw functuion is : \(size)")
-                    
-                }
-            }
+        if let selectedVariation = gridVariations.selectedVariation {
+                    _ = choosenVariation(gridVariations.selectedVariation)
+                    gridVariations.selectedVariation = nil
+            
         }
-        
+
+//        
         // Drawing code
         //base
         let base = rect.origin
         //gridSize
         let gridSize = CGSize(
-            width: rect.size.width / CGFloat(size),
-            height: rect.size.height / CGFloat(size)
+            width: rect.size.width / CGFloat(cols),
+            height: rect.size.height / CGFloat(rows)
         )
         //draw grid
-        (0 ..< size+1).forEach { i in
+        (0 ..< cols+1).forEach { i in
             //draw vertical lines
             drawLine(
                 start: CGPoint(
@@ -164,9 +135,9 @@ func establishSize (_ modification: [[Int]]) -> Int {
         }
         //make circles
         
-        (0 ..< size+1).forEach { i in
+        (0 ..< cols+1).forEach { i in
             
-            (0 ..< size+1).forEach { j in
+            (0 ..< rows+1).forEach { j in
                 
                 let circle = UIBezierPath(ovalIn: CGRect(
                     origin: CGPoint (
@@ -191,8 +162,14 @@ func establishSize (_ modification: [[Int]]) -> Int {
                 
             }
         }
-
         
+        //notify that grid has been updated
+        let nc = NotificationCenter.default
+        let name = Notification.Name(rawValue: "GridUpdate")
+        let n = Notification(name: name,
+                             object: nil,
+                             userInfo: ["grid" : self])
+        nc.post(n)
     }
     
     func drawLine(start: CGPoint, end: CGPoint) {
@@ -245,8 +222,6 @@ func establishSize (_ modification: [[Int]]) -> Int {
 //            print("toggled cell \(toggledCell)")
             gridDataSource?[pos.row, pos.col] = toggledCell!
             gridDataSource = gridDataSource.map {$0}
-//            gridDataSource = newGridToUpdate
-//            newGridToUpdate?[pos.row, pos.col] = toggledCell!
 //            print("state of the grid \(self.gridDataSource?[pos.row, pos.col])")
             setNeedsDisplay()
         }
@@ -257,10 +232,10 @@ func establishSize (_ modification: [[Int]]) -> Int {
     func convert(touch: UITouch) -> GridPosition {
         let touchY = touch.location(in: self).y
         let gridHeight = frame.size.height
-        let row = touchY / gridHeight * CGFloat(size)
+        let row = touchY / gridHeight * CGFloat(rows)
         let touchX = touch.location(in: self).x
         let gridWidth = frame.size.width
-        let col = touchX / gridWidth * CGFloat(size)
+        let col = touchX / gridWidth * CGFloat(cols)
         let position = GridPosition(row: Int(row), col: Int(col))
         return position
     }

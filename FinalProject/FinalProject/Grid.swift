@@ -5,7 +5,7 @@ import Foundation
 
 fileprivate func norm(_ val: Int, to size: Int) -> Int { return ((val % size) + size) % size }
 
-fileprivate let lazyPositions = { (size: GridSize) in
+ let lazyPositions = { (size: GridSize) in
     return (0 ..< size.rows)
         .lazy
         .map { zip( [Int](repeating: $0, count: size.cols) , 0 ..< size.cols ) }
@@ -23,8 +23,11 @@ public extension GridProtocol {
 }
 
 public struct Grid: GridProtocol, GridViewDataSource {
+
     private var _cells: [[CellState]]
-    public let size: GridSize
+    //changed to set rows and cols size
+    public var size: GridSize
+//    public let size: GridSize
     
     public subscript (row: Int, col: Int) -> CellState {
         get { return _cells[norm(row, to: size.rows)][norm(col, to: size.cols)] }
@@ -69,8 +72,8 @@ public struct Grid: GridProtocol, GridViewDataSource {
 }
 
 extension Grid: Sequence {
-    fileprivate var living: [GridPosition] {
-        return lazyPositions(self.size).filter { return  self[$0.row, $0.col].isAlive }
+    var living: [GridPosition] {
+        return lazyPositions(self.size).filter { return  self[$0.row, $0.col] == .alive }
     }
     
     public struct GridIterator: IteratorProtocol {
@@ -127,15 +130,31 @@ public extension Grid {
         }
     }
 }
-//public extension Grid {
-//    func setConfiguration(){ lazyPositions(self.size).forEach {
-//        switch self[$0.row,$0.col]{
-//        case .born:
-//            configuration["born" = configuration["born"] ?? []] + [[$.0.row, $0.col]]
-//        }
-//    }
-//    }
-//}
+var configuration: [String: [[Int]]] = [:]
+public extension Grid {
+    //added to calculate number of cells of the grid
+    func returnPositions(state: CellState) -> [GridPosition] {
+        var cellsPositions: [GridPosition] {
+            return lazyPositions(self.size).filter{return  self[$0.row, $0.col] == state}
+        }
+        return cellsPositions
+    }
+    // added to set a configuration of the grid
+    func setConfiguration(){
+        lazyPositions(self.size).forEach {
+            switch self[$0.row,$0.col] {
+            case .born:
+                configuration["born"] = (configuration["born"] ?? []) + [[$0.row, $0.col]]
+            case .died:
+                configuration["died"] = (configuration["died"] ?? []) + [[$0.row, $0.col]]
+            case .alive:
+                configuration["alive"] = (configuration["alive"] ?? []) + [[$0.row, $0.col]]
+            case .empty:
+                ()
+            }
+        }
+    }
+}
 
 
 
@@ -152,8 +171,6 @@ protocol EngineProtocol {
     var cols: Int { get set }
     init(rows: Int, cols: Int)
     func step() -> GridProtocol
-    //added for calculating statistics
-    func reduce2(_ rows: Int, _ cols: Int, combine: (Int, Int, Int) -> Int) -> Int
 }
 
 class StandardEngine: EngineProtocol {
@@ -179,21 +196,16 @@ class StandardEngine: EngineProtocol {
     var refreshRate: TimeInterval = 0.0 {
         didSet {
             if refreshRate > 0.0 {
-                print("after comparison to 0 \(refreshRate)")
                 refreshTimer = Timer.scheduledTimer(
                     withTimeInterval: refreshRate,
                     repeats: true
                 ) { (t: Timer) in
                     _ = self.step()
-                    print("timer goes off")
-                    print("within refreshrate\(self.refreshRate)")
                 }
             }
             else {
                 refreshTimer?.invalidate()
                 refreshTimer = nil
-                print("timer is invalidated")
-                print("\(refreshRate)")
             }
         }
     }
@@ -217,13 +229,6 @@ class StandardEngine: EngineProtocol {
         nc.post(n)
         return grid
     }
-    //added for calculating statistics
-    func reduce2(_ rows: Int, _ cols: Int, combine: (Int, Int, Int) -> Int) -> Int  {
-        return (0 ..< rows).reduce(0) { (total: Int, row: Int) -> Int in
-            return (0 ..< cols).reduce(total) { (subtotal, col) -> Int in
-                return combine(subtotal, row, col)
-            }
-        }
-    }
 
 }
+
