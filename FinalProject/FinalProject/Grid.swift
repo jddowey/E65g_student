@@ -1,11 +1,14 @@
+
 //
 //  Grid.swift
 //
 import Foundation
 
-fileprivate func norm(_ val: Int, to size: Int) -> Int { return ((val % size) + size) % size }
+//fileprivate taken out
+func norm(_ val: Int, to size: Int) -> Int { return ((val % size) + size) % size }
 
- let lazyPositions = { (size: GridSize) in
+//fileprivate taken out
+let lazyPositions = { (size: GridSize) in
     return (0 ..< size.rows)
         .lazy
         .map { zip( [Int](repeating: $0, count: size.cols) , 0 ..< size.cols ) }
@@ -27,7 +30,7 @@ public struct Grid: GridProtocol, GridViewDataSource {
     private var _cells: [[CellState]]
     //changed to set rows and cols size
     public var size: GridSize
-//    public let size: GridSize
+//  public let size: GridSize
     
     public subscript (row: Int, col: Int) -> CellState {
         get { return _cells[norm(row, to: size.rows)][norm(col, to: size.cols)] }
@@ -154,6 +157,18 @@ public extension Grid {
             }
         }
     }
+    func getConfiguration(){
+        
+    }
+
+    public static func variationInitializer(pos: GridPosition) -> CellState {
+        switch pos {
+        case GridPosition(row: 0, col: 1), GridPosition(row: 1, col: 2),
+             GridPosition(row: 2, col: 0), GridPosition(row: 2, col: 1),
+             GridPosition(row: 2, col: 2): return .alive
+        default: return .empty
+        }
+    }
 }
 
 
@@ -212,6 +227,7 @@ class StandardEngine: EngineProtocol {
 
     
     required init(rows: Int, cols: Int) {
+
         self.grid = Grid(GridSize(rows: rows, cols: cols))
         self.rows = rows
         self.cols = cols

@@ -9,7 +9,6 @@
 import UIKit
 
 let finalProjectURL = "https://dl.dropboxusercontent.com/u/7544475/S65g.json"
-var jsonArray: NSArray = []
 
 
 class InstrumentationViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
@@ -52,36 +51,42 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
                 print(message ?? "nil")
                 return
             }
+            //guard
             guard let json = json else {
                 print("no json")
                 return
             }
-            jsonArray = json as! NSArray
-            if (jsonArray.count != 0) {
-                for i in 0..<jsonArray.count {
-                    let jsonDictionary = jsonArray[i] as! NSDictionary
-                    self.jsonDictionaryArray.updateValue(jsonDictionary["contents"] as! [[Int]], forKey: jsonDictionary["title"] as! String)
-                }
-                for (name, variation) in self.jsonDictionaryArray {
-                    let fullStack = ["alive": variation]
-                    self.gridVariations.variationsData.updateValue(fullStack, forKey: name)
-                }
-                self.gridVariations.variationsData["initial row"] = nil
-            }
+            //guard
+            let jsonArray = json as! NSArray
             OperationQueue.main.addOperation {
+                
+                if (jsonArray.count != 0) {
+                    for i in 0..<jsonArray.count {
+                        let jsonDictionary = jsonArray[i] as! NSDictionary
+                        self.jsonDictionaryArray.updateValue(jsonDictionary["contents"] as! [[Int]], forKey: jsonDictionary["title"] as! String)
+                    }
+                    //jsonArray
+                    for (name, variation) in self.jsonDictionaryArray {
+                        let fullStack = ["alive": variation]
+                        self.gridVariations.variationsData.updateValue(fullStack, forKey: name)
+                    }
+                    //dict
+                    self.gridVariations.variationsData["initial row"] = nil
+                }
+                //end if
+                
                 self.congifurationsView.reloadData()
-
                 
             }
         }
-        //
-           OperationQueue.main.addOperation {
+
+
         let userGrid: StandardEngine = StandardEngine(rows: (Int(self.gridRowsTextField.text!) ?? 10), cols: (Int(self.gridColsTextField.text!) ?? 10))
                     configuration.removeAll()
         
                     _ = userGrid.grid.setConfiguration()
                     print("configuration \(configuration)")
-        }
+
 
         
         //access to the GridVariations (json and user saved data) static instance
@@ -256,12 +261,12 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
         
         return cell
     }
-    //no need for this function, used for debugging
+    
+    //no need for this function but handyfor debugging
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         NSLog("You selected cell number: \(indexPath.row)!")
     }
 
-    
     // MARK: - Navigation
     
     // In a storyboard-based application, you will often want to do a little preparation before navigation
@@ -272,23 +277,10 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
                 
             if let vc = segue.destination as? GridEditorViewController {
                 vc.variationValue = gridVariations.selectedVariation
-   
-                print (gridVariations.selectedVariation)
-                print(vc.gridEditorView)
                 vc.saveClosure = { newValue in
                     self.sectionHeaders[indexPath.row] = newValue
                     self.congifurationsView.reloadData()
                 }
-//                if vc.gridEditorView != nil {
-
-//                vc.gridEditorView.selectedVariation = gridVariationValue
-//                    print(vc.gridEditorView.selectedVariation)
-//                }
-//                vc.gridEditorView.selectedVariation = sectionHeaders[indexPath.row]
-//               vc.saveClosure = { newValue in
-//                    sectionHeaders[indexPath.row] = newValue
-//                    self.tableView.reloadData()
-//                }
             }
         }
     }

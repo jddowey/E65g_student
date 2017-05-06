@@ -16,32 +16,68 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
     var engine: EngineProtocol!
     var timer: Timer?
 //    var configuration: [String: [[Int]]] = [:]
+    //to delete
+    var gridVariations:GridVariation!
 
+    override func loadView() {
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name(rawValue: "GridEditorEngineUpdate"),
+            object: nil,
+            queue: nil) { n in
+                print("loadView: notification received")
+                self.engine.grid = n.userInfo?["lastGrid"] as! GridProtocol
+                print("updated Simulation engine.grid from GridEditor in the loadView \(self.engine.grid)")
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        print("Simulation : viewDidLoad")
         
-        DispatchQueue.main.async(){
-            self.engine = StandardEngine.engine
-            self.engine.delegate = self
-            self.gridView.gridDataSource = self
+        gridVariations = GridVariation.gridVariationSingleton
+        engine = StandardEngine.engine
+        engine.delegate = self
+        if gridView != nil {
+            gridView.gridDataSource = self
         }
+
+
+        
+
+//        NotificationCenter.default.addObserver(
+//            forName: Notification.Name(rawValue: "GridEditorEngineUpdate"),
+//            object: nil,
+//            queue: nil) { n in
+//                print("ViewDidLoad: notification received")
+//                self.engine.grid = n.userInfo?["lastGrid"] as! GridProtocol
+//                print("updated Simulation engine.grid from GridEditor in the viewDidLoad \(self.engine.grid)")
+//        }
 
         
     }
-    override func viewDidAppear(_ animated: Bool) {
-        //        observer for the SizeUpdate
-        //        NotificationCenter.default.addObserver(
-        //            forName: Notification.Name(rawValue: "SizeUpdate"),
-        //            object: nil,
-        //            queue: nil) { (n) in
-        //                print(n.userInfo?["size"] as! Int)
-        //                let updatedSize = n.userInfo?["size"] as! Int
-        //                self.engine.grid = Grid(GridSize(rows: updatedSize, cols: updatedSize))
-        //                self.gridView.setNeedsDisplay()
-        //        }
+    override func viewWillAppear(_ animated: Bool) {
+
         
+        //observer for the GridUpdate in GridView
+//        NotificationCenter.default.addObserver(
+//            forName: Notification.Name(rawValue: "GridUpdate"),
+//            object: nil,
+//            queue: nil) { (n) in
+//                self.gridView.setNeedsDisplay()
+//        }
+//            NotificationCenter.default.addObserver(
+//                forName: Notification.Name(rawValue: "GridEditorEngineUpdate"),
+//                object: nil,
+//                queue: nil) { notification in
+//                    let userInfo = notification.userInfo!
+//                    print("ViewVillAppear: notification received\(userInfo)")
+//                    self.engine.grid = notification.userInfo?["lastGrid"] as! GridProtocol
+//                    print("updated Simulation engine.grid from GridEditor \(self.engine.grid)")
+//            }
+    }
+    override func viewDidAppear(_ animated: Bool) {
+        
+         print("Simulation : viewDidAppear")
         //observer for the EngineUpdate
         NotificationCenter.default.addObserver(
             forName: Notification.Name(rawValue: "EngineUpdate"),
@@ -61,8 +97,6 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
     //conforming to Engine Delegate protocol
     func engineDidUpdate(withGrid: GridProtocol) {
         self.gridView.setNeedsDisplay()
-//        engine.rows = self.gridView.size
- //       engine.cols = self.gridView.size
     }
     //conforming to GridViewDataSource protocol
     public subscript (row: Int, col: Int) -> CellState {
@@ -85,10 +119,9 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
             if let field = alertController.textFields?[0] {
                 // store the data
                 configuration.removeAll()
-                
                 _ = self.engine.grid.setConfiguration()
                 print("configuration \(configuration)")
-                UserDefaults.standard.set(field.text, forKey: field.text!)
+                UserDefaults.standard.set(configuration, forKey: field.text!)
                 UserDefaults.standard.synchronize()
             } else {
                 // user did not fill field
@@ -115,10 +148,7 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
     
     @IBAction func saveGrid(_ sender: Any) {
 
-            configuration.removeAll()
-
-                _ = engine.grid.setConfiguration()
-            print("configuration \(configuration)")
+        _ = showAlert()
 
         
     }

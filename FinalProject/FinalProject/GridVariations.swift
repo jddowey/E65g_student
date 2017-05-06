@@ -18,9 +18,39 @@ class GridVariation {
     }
     var selectedVariation: String?
     var variationsUpdateClosure: (([String : [String : [[Int]]]]) -> Void)?
+    var gridSize: Int = 0
+    var saveClicked: Bool = false
     
     init (data: [String : [String : [[Int]]]]) {
         self.variationsData = data
 
+    }
+    func createVariationGrid() -> Grid {
+        var newSize: [Int] = []
+        
+        self.variationsData[selectedVariation!]?.forEach{(receivedVariationState, receivedVariationData) in
+            
+            //establish the size
+            let maxNumber = receivedVariationData
+                .reduce([], { (result: [Int], element: [Int]) -> [Int] in
+                    return result + element
+                })
+                .reduce(0){$0 > $1 ? $0 : $1}
+            
+            newSize.append(maxNumber)
+
+        }
+        gridSize = ((newSize.reduce(0){$0 > $1 ? $0 : $1}) + 1) * 2
+        var variationGrid = Grid(GridSize(rows: gridSize, cols: gridSize)) { _ in .empty }
+        
+        self.variationsData[selectedVariation!]?.forEach{(receivedVariationState, receivedVariationData) in
+                (0 ..< receivedVariationData.count).forEach { i in
+                        let varRow = receivedVariationData[i][0]
+                        let varCol = receivedVariationData[i][1]
+                        variationGrid[varRow, varCol] = CellState(rawValue: receivedVariationState)!
+                }
+        }
+        print ("variation GRID from the class \(variationGrid)")
+        return variationGrid
     }
 }

@@ -14,12 +14,7 @@ public protocol GridViewDataSource {
 
 @IBDesignable class GridView: UIView{
     
-    
-//    @IBInspectable var size: Int = 5 {
-//        didSet{
-//            engine.grid = Grid(GridSize(rows: size, cols: size))
-//        }
-//    }
+    //added variables for rows and cols
     @IBInspectable var rows: Int = 5
     @IBInspectable var cols: Int = 5
     @IBInspectable var livingColor: UIColor = UIColor.red
@@ -29,50 +24,10 @@ public protocol GridViewDataSource {
     @IBInspectable var gridColor: UIColor = UIColor.darkGray
     @IBInspectable var gridWidth: CGFloat = 3.0
     
-//    var selectedVariation: String?
     var gridDataSource: GridViewDataSource?
-    var gridVariations = GridVariation.gridVariationSingleton
-    var engine = StandardEngine.engine
+    //added to reference the engine and check if teh data source is not empty
+    var engine: StandardEngine = StandardEngine.engine
     var emptyDataSource:String = ""
-    
-
-
-func establishSize (_ modification: [[Int]]) -> Int {
-    var calculatedSize: Int {
-        let maxNumber = modification.flatMap{$0}.reduce(0){$0 > $1 ? $0 : $1}
-        return (maxNumber + 1) * 2
-    }
-    return calculatedSize
-}
-    func setGridDataSource (_ modification: [[Int]]){
-        engine.grid = Grid(GridSize(rows: rows, cols: cols))
-        (0 ..< modification.count).forEach { i in
-            let varRow = modification[i][0]
-            let varCol = modification[i][1]
-            gridDataSource?[varRow, varCol] = .alive
-        }
- //       numberEmpty = engine.grid.returnPositions(state: .empty).count
-        //to check that the grid is drawing correctly
-//                (0 ..< size+1).forEach { i in
-//        
-//                    (0 ..< size+1).forEach { j in
-//                        print("gridDataSource of [\(i), \(j)] is \(gridDataSource?[i,j])")
-//                        }
-//        }
-        
-        
-    }
-
-    func choosenVariation(_ selectedVariation: String?){
-
-            if let receivedVariation = gridVariations.variationsData[selectedVariation!]?.values {
-                print("\(receivedVariation)")
-                let newVariation = receivedVariation.map{$0}.reversed()[0]
-                rows = establishSize(newVariation)
-                cols = establishSize(newVariation)
-                _ = setGridDataSource(newVariation)
-            }
-    }
     
     
     /*
@@ -83,22 +38,27 @@ func establishSize (_ modification: [[Int]]) -> Int {
     
     override func draw(_ rect: CGRect) {
         
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name(rawValue: "GridEditorEngineUpdate"),
+            object: nil,
+            queue: nil) { notification in
+                let userInfo = notification.userInfo!
+                print("GridView: notification received\(userInfo)")
+                self.engine.grid = notification.userInfo?["lastGrid"] as! GridProtocol
+                print("updated GridView engine.grid from GridEditor \(self.engine.grid)")
+        }
+        
         //check that the data source is not empty
         let numberEmpty = engine.grid.returnPositions(state: .empty).count
+        print("numberEmpty \(numberEmpty)")
         rows = self.engine.grid.size.rows
         cols = self.engine.grid.size.cols
 
         
-        if numberEmpty == rows * cols {
-            emptyDataSource = "empty grid"
-        }
-        if let selectedVariation = gridVariations.selectedVariation {
-                    _ = choosenVariation(gridVariations.selectedVariation)
-                    gridVariations.selectedVariation = nil
-            
-        }
-
-//        
+//        if numberEmpty == rows * cols {
+//            emptyDataSource = "empty grid"
+//        }
+     
         // Drawing code
         //base
         let base = rect.origin
@@ -219,13 +179,10 @@ func establishSize (_ modification: [[Int]]) -> Int {
         if gridDataSource != nil {
             
             let toggledCell = gridDataSource?[pos.row, pos.col].toggle(value: (gridDataSource?[pos.row, pos.col])!)
-//            print("toggled cell \(toggledCell)")
             gridDataSource?[pos.row, pos.col] = toggledCell!
             gridDataSource = gridDataSource.map {$0}
-//            print("state of the grid \(self.gridDataSource?[pos.row, pos.col])")
             setNeedsDisplay()
         }
-//print("position \(pos)")
         return pos
     }
     
