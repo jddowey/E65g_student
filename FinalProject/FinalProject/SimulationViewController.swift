@@ -11,6 +11,7 @@ import UIKit
 class SimulationViewController: UIViewController, GridViewDataSource, EngineDelegate {
     
     
+  
     @IBOutlet weak var gridView: GridView!
     
     var engine: EngineProtocol!
@@ -19,16 +20,6 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
     //to delete
     var gridVariations:GridVariation!
 
-    override func loadView() {
-        NotificationCenter.default.addObserver(
-            forName: Notification.Name(rawValue: "GridEditorEngineUpdate"),
-            object: nil,
-            queue: nil) { n in
-                print("loadView: notification received")
-                self.engine.grid = n.userInfo?["lastGrid"] as! GridProtocol
-                print("updated Simulation engine.grid from GridEditor in the loadView \(self.engine.grid)")
-        }
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,21 +28,23 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
         gridVariations = GridVariation.gridVariationSingleton
         engine = StandardEngine.engine
         engine.delegate = self
-        if gridView != nil {
-            gridView.gridDataSource = self
+        gridView.gridDataSource = self
+        guard let lastGrid = gridVariations?.createVariationGrid() else {return}
+
+
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name(rawValue: "GridEditorEngineUpdate"),
+            object: nil,
+            queue: nil) { n in
+                print("ViewDidLoad: notification received")
+                
+                guard let receivedN:GridProtocol = n.userInfo!["lastGrid"] as? GridProtocol else {return}
+                print("notification received")
+        
+                self.engine.grid = n.userInfo?["lastGrid"] as! GridProtocol
+                print("updated Simulation engine.grid from GridEditor in the viewDidLoad \(self.engine.grid)")
         }
 
-
-        
-
-//        NotificationCenter.default.addObserver(
-//            forName: Notification.Name(rawValue: "GridEditorEngineUpdate"),
-//            object: nil,
-//            queue: nil) { n in
-//                print("ViewDidLoad: notification received")
-//                self.engine.grid = n.userInfo?["lastGrid"] as! GridProtocol
-//                print("updated Simulation engine.grid from GridEditor in the viewDidLoad \(self.engine.grid)")
-//        }
 
         
     }
@@ -65,15 +58,15 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
 //            queue: nil) { (n) in
 //                self.gridView.setNeedsDisplay()
 //        }
-//            NotificationCenter.default.addObserver(
-//                forName: Notification.Name(rawValue: "GridEditorEngineUpdate"),
-//                object: nil,
-//                queue: nil) { notification in
-//                    let userInfo = notification.userInfo!
-//                    print("ViewVillAppear: notification received\(userInfo)")
-//                    self.engine.grid = notification.userInfo?["lastGrid"] as! GridProtocol
-//                    print("updated Simulation engine.grid from GridEditor \(self.engine.grid)")
-//            }
+            NotificationCenter.default.addObserver(
+                forName: Notification.Name(rawValue: "GridEditorEngineUpdate"),
+                object: nil,
+                queue: nil) { notification in
+                    let userInfo = notification.userInfo!
+                    print("ViewVillAppear: notification received\(userInfo)")
+                    self.engine.grid = notification.userInfo?["lastGrid"] as! GridProtocol
+                    print("updated Simulation engine.grid from GridEditor \(self.engine.grid)")
+            }
     }
     override func viewDidAppear(_ animated: Bool) {
         
@@ -91,6 +84,15 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
             object: nil,
             queue: nil) { (n) in
                 self.gridView.setNeedsDisplay()
+        }
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name(rawValue: "GridEditorEngineUpdate"),
+            object: nil,
+            queue: nil) { notification in
+            let userInfo = notification.userInfo!
+            print("ViewVillAppear: notification received\(userInfo)")
+            self.engine.grid = notification.userInfo?["lastGrid"] as! GridProtocol
+            print("updated Simulation engine.grid from GridEditor \(self.engine.grid)")
         }
 
     }

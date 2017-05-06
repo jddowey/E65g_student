@@ -327,7 +327,7 @@
                     </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <connections>
-                        <outlet property="gridEditorView" destination="Fs3-rO-xSp" id="R5h-lK-Vs6"/>
+                        <outlet property="gridViewEditor" destination="Fs3-rO-xSp" id="KJD-MX-wE0"/>
                         <outlet property="variationValueTextField" destination="b47-Pf-fW1" id="11p-YB-k78"/>
                     </connections>
                 </viewController>
@@ -431,7 +431,7 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Simulation" image="Simulation" id="cPa-gy-q4n" userLabel="Simulation"/>
                     <connections>
-                        <outlet property="gridView" destination="DYv-H8-PcO" id="OLK-rd-fNs"/>
+                        <outlet property="gridView" destination="DYv-H8-PcO" id="S9t-XN-teT"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4Nw-L8-lE0" sceneMemberID="firstResponder"/>

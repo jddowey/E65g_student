@@ -23,7 +23,8 @@ class GridEditorViewController: UIViewController, GridViewDataSource {
 
 
     @IBOutlet weak var variationValueTextField: UITextField!
-    @IBOutlet weak var gridEditorView: GridView!
+
+    @IBOutlet weak var gridViewEditor: GridView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,7 +34,7 @@ class GridEditorViewController: UIViewController, GridViewDataSource {
         //access to the GridVariations (json and user saved data) instance
         gridVariationInstance = GridVariation.gridVariationSingleton
         //gridDataSource delegate
-        gridEditorView.gridDataSource = self
+        gridViewEditor.gridDataSource = self
 
         navigationController?.isNavigationBarHidden = false
 
@@ -54,7 +55,7 @@ class GridEditorViewController: UIViewController, GridViewDataSource {
     }
     override func viewDidDisappear(_ animated: Bool) {
         //redraw an empty grid
-        engine.grid = Grid(GridSize(rows: gridEditorView.rows, cols: gridEditorView.cols))
+        engine.grid = Grid(GridSize(rows: gridViewEditor.rows, cols: gridViewEditor.cols))
         print("GridEditor: viewDidDisappear")
     }
 
@@ -92,20 +93,27 @@ class GridEditorViewController: UIViewController, GridViewDataSource {
     
     @IBAction func saveUserGridVariation(_ sender: Any) {
         let lastGrid: GridProtocol = engine.grid
-//        print("LAST GRID in the GRID EDITOR \(lastGrid)")
-        
- //       guard let lastGrid = gridVariationInstance?.createVariationGrid() else {return}
         print("LAST GRID in the GRID EDITOR \(lastGrid)")
+        
+//        guard let lastGrid = gridVariationInstance?.createVariationGrid() else {return}
+//        print("LAST GRID in the GRID EDITOR \(lastGrid)")
         //post notification GridEditorEngineUpdate
         let nge = NotificationCenter.default
-        let lastVariation :(Timer) -> Void = { timer in
-            let userInfo = ["lastGrid" : self.engine.grid]
+//        let lastVariation :(Timer) -> Void = { timer in
+//            let userInfo = ["lastGrid" : lastGrid]
+//            let notificationGE = Notification(name: Notification.Name(rawValue: "GridEditorEngineUpdate"),
+//                                   object: nil,
+//                                   userInfo: userInfo)
+//            nge.post(notificationGE)
+//        }
+//        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: lastVariation)
+
             let notificationGE = Notification(name: Notification.Name(rawValue: "GridEditorEngineUpdate"),
-                                   object: nil,
-                                   userInfo: userInfo)
+                        object: nil,
+                        userInfo: ["lastGrid" : lastGrid])
             nge.post(notificationGE)
-        }
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: lastVariation)
+
+
         //create a name
         let dateformatter = DateFormatter()
         dateformatter.dateFormat = "MM/dd/yy h:mm a Z"
