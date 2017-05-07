@@ -10,53 +10,35 @@ import UIKit
 
 class GridEditorViewController: UIViewController, GridViewDataSource {
     
-    var engine: EngineProtocol!
+    @IBOutlet weak var variationValueName: UILabel!
+    @IBOutlet weak var gridViewEditor: GridView!
     
     var variationValue: String?
-    
-    var saveClosure: ((String) -> Void)?
-    
-    var gridVariationInstance: GridVariation!
-    
-    var timer: Timer?
-
-
-
-    @IBOutlet weak var variationValueTextField: UITextField!
-
-    @IBOutlet weak var gridViewEditor: GridView!
+    var engine: EngineProtocol!
+    var gridVariations: GridVariation!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         //access to StandardEngine instance
         engine = StandardEngine.engine
+        
         //access to the GridVariations (json and user saved data) instance
-        gridVariationInstance = GridVariation.gridVariationSingleton
+        gridVariations = GridVariation.gridVariationSingleton
+        
         //gridDataSource delegate
         gridViewEditor.gridDataSource = self
-
+        
+        //navigation controller bar
         navigationController?.isNavigationBarHidden = false
 
+        //assign grid to the selected variation, if there is any
         if let variationValue = variationValue {
-            variationValueTextField.text = variationValue
-            gridVariationInstance?.selectedVariation = variationValue
-            guard let newConfiguration = gridVariationInstance?.createVariationGrid() else {return}
+            variationValueName.text = variationValue
+            gridVariations?.selectedVariation = variationValue
+            guard let newConfiguration = gridVariations?.createVariationGrid() else {return}
             engine.grid = newConfiguration
-
         }
-        //end if
-    }
-    
-    //conforming to GridViewDataSource protocol
-    public subscript (row: Int, col: Int) -> CellState {
-        get { return engine.grid[row,col] }
-        set { engine.grid[row,col] = newValue }
-    }
-    override func viewDidDisappear(_ animated: Bool) {
-        //redraw an empty grid
-        engine.grid = Grid(GridSize(rows: gridViewEditor.rows, cols: gridViewEditor.cols))
-        print("GridEditor: viewDidDisappear")
     }
 
     override func didReceiveMemoryWarning() {
@@ -64,6 +46,7 @@ class GridEditorViewController: UIViewController, GridViewDataSource {
         // Dispose of any resources that can be recreated.
     }
     
+    //this function was created because I misinterpreted project requirements and thought that we need to save to a json file on the hard drive
     func saveToJsonFile() {
         // Get the url of userGridVariation.json in document directory
         guard let documentDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
@@ -83,7 +66,7 @@ class GridEditorViewController: UIViewController, GridViewDataSource {
         
         // Transform array into data and save it into file
         var error: NSError?
-        JSONSerialization.writeJSONObject(gridVariationInstance?.variationsData ?? [], to: stream, options: [], error: &error)
+        JSONSerialization.writeJSONObject(gridVariations?.variationsData ?? [], to: stream, options: [], error: &error)
         
         // Handle error
         if let error = error {
@@ -93,72 +76,43 @@ class GridEditorViewController: UIViewController, GridViewDataSource {
     
     @IBAction func saveUserGridVariation(_ sender: Any) {
         let lastGrid: GridProtocol = engine.grid
-        print("LAST GRID in the GRID EDITOR \(lastGrid)")
         
-//        guard let lastGrid = gridVariationInstance?.createVariationGrid() else {return}
-//        print("LAST GRID in the GRID EDITOR \(lastGrid)")
         //post notification GridEditorEngineUpdate
         let nge = NotificationCenter.default
-//        let lastVariation :(Timer) -> Void = { timer in
-//            let userInfo = ["lastGrid" : lastGrid]
-//            let notificationGE = Notification(name: Notification.Name(rawValue: "GridEditorEngineUpdate"),
-//                                   object: nil,
-//                                   userInfo: userInfo)
-//            nge.post(notificationGE)
-//        }
-//        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: lastVariation)
-
-            let notificationGE = Notification(name: Notification.Name(rawValue: "GridEditorEngineUpdate"),
+        let notificationGE = Notification(name: Notification.Name(rawValue: "GridEditorEngineUpdate"),
                         object: nil,
                         userInfo: ["lastGrid" : lastGrid])
-            nge.post(notificationGE)
+        nge.post(notificationGE)
 
 
         //create a name
         let dateformatter = DateFormatter()
         dateformatter.dateFormat = "MM/dd/yy h:mm a Z"
         let now = dateformatter.string(from: NSDate() as Date)
-        let newName = variationValueTextField.text! + " " + now
+        let newName = variationValueName.text! + " " + now
         
+        //createa configuration
         configuration.removeAll()
-        
         _ = engine.grid.setConfiguration()
+        
+        //update gridVariations instance
+        gridVariations?.variationsData.updateValue([configuration.keys.first!: configuration["alive"]!], forKey: newName)
 
-
-        gridVariationInstance?.variationsData.updateValue([configuration.keys.first!: configuration["alive"]!], forKey: newName)
-
-
+        //if we were to save in json format to the hard drive
  //       _ = saveToJsonFile()
         
-        OperationQueue.main.addOperation {
-
-            do {
-                let jsonData = try JSONSerialization.data(withJSONObject: self.gridVariationInstance?.variationsData ?? ["initial row": ["alive": [[0, 0]]]], options: [])
-                let theJSONText = String(data: jsonData,
-                                     encoding: .ascii)
- //               print("JSON string = \(theJSONText!)")
-            }
-            catch   {
- //               print(error.localizedDescription)
-            }
-        }
-        //figure out the condition
-//        let newValue = newName
-//        if newValue != nil,
-//            let saveClosure = saveClosure {
-//            saveClosure(newValue)
-//            self.navigationController?.popViewController(animated: true)
-//        }
-        gridVariationInstance.saveClicked = true
+        //make a mark that the instance has been saved
+        gridVariations?.savedVariation = true
+        
+        //return to the InstrumenatationViewController
         navigationController?.popViewController(animated: true)
-
-//        if let newValue = variationValueTextField.text,
-//            let saveClosure = saveClosure {
-//            saveClosure(newValue)
-//            self.navigationController?.popViewController(animated: true)
-//        }
     }
-
+    
+    //conforming to GridViewDataSource protocol
+    public subscript (row: Int, col: Int) -> CellState {
+        get { return engine.grid[row,col] }
+        set { engine.grid[row,col] = newValue }
+    }
 
     /*
     // MARK: - Navigation

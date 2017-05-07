@@ -14,21 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     
-    let strings = ["Tumbler": ["alive":[[11,12],[11,13],[11,15],[11,16],[12,12],[12,13],[12,15],[12,16],[13,13],[13,15],[14,11],[14,13],[14,15],[14,17],[15,11],[15,13],[15,15]]]
-    ]
-    var userDefaultsVariationInstance: GridVariation!
-    var gridVariations: GridVariation!
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        //access to the GridVariations (json and user saved data) singleton
-        userDefaultsVariationInstance = GridVariation(data: ["initial row": ["alive": [[0, 0]]]])
-
-        //saving to user defaults
-        let defaults = UserDefaults.standard
-        defaults.set(strings, forKey: "strings")
-        let recoveredStrings = defaults.object(forKey: "strings")
-        print("defaults \(defaults)")
-        print("recoveredStrings \(recoveredStrings)")
         
         // Override point for customization after application launch.
         return true
@@ -59,29 +45,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     func applicationDidFinishLaunching(_ application: UIApplication) {
         
-
-        func loadJson() -> NSDictionary? {
-            
-            if let url = Bundle.main.path(forResource: "userGridVariation", ofType: "json") {
-                if let data = FileManager.default.contents(atPath: url) {
-                    do {
-                        let dictionary = try JSONSerialization.jsonObject(with: data as Data, options: .allowFragments) as? NSDictionary
-                        print("DICTIONARY \(dictionary)")
-                        
-                        return dictionary
-                    } catch {
-                        print("Error!! Unable to parse  userGridVariation.json")
-                    }
-                }
-                print("Error!! Unable to load  userGridVariation.json")
-            }
-            
-            return nil
-        }
 //        _ = loadJson()
     }
-    
+    func loadJson() -> NSDictionary? {
         
+        if let url = Bundle.main.path(forResource: "userGridVariation", ofType: "json") {
+            if let data = FileManager.default.contents(atPath: url) {
+                do {
+                    let dictionary = try JSONSerialization.jsonObject(with: data as Data, options: .allowFragments) as? NSDictionary
+                    print("DICTIONARY \(dictionary)")
+                    
+                    return dictionary
+                } catch {
+                    print("Error!! Unable to parse  userGridVariation.json")
+                }
+            }
+            print("Error!! Unable to load  userGridVariation.json")
+        }
+        
+        return nil
+    }
+    
+    
 
 }
 

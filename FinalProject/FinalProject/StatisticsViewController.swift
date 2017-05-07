@@ -15,7 +15,6 @@ class StatisticsViewController: UIViewController {
     @IBOutlet weak var countBorn: UILabel!
     @IBOutlet weak var countDead: UILabel!
 
-    
     var engine: EngineProtocol!
 
     override func viewDidLoad() {

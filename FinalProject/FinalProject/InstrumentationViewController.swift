@@ -25,14 +25,10 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
     
     var engine: EngineProtocol!
     var timer: Timer?
-//    var variationTimer: Timer?
-    
     var gridVariations: GridVariation!
     var sectionHeaders: [String] = []
     var gridVariationValue : String = ""
-    
     var jsonDictionaryArray: [String : [[Int]]] = [:]
-    var createdTitles: [String] = []
     
     var rows:Int = 5
     var cols:Int = 5
@@ -41,8 +37,6 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
         super.viewDidLoad()
         navigationController?.isNavigationBarHidden = true
         
-        //access to the GridVariations (json and user saved data) static instance
-//        gridVariations = GridVariation.gridVariationSingleton
         
         //fetcher
         let fetcher = Fetcher()
@@ -81,13 +75,6 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
         }
 
 
-        let userGrid: StandardEngine = StandardEngine(rows: (Int(self.gridRowsTextField.text!) ?? 10), cols: (Int(self.gridColsTextField.text!) ?? 10))
-                    configuration.removeAll()
-        
-                    _ = userGrid.grid.setConfiguration()
-                    print("configuration \(configuration)")
-
-
         
         //access to the GridVariations (json and user saved data) static instance
         gridVariations = GridVariation.gridVariationSingleton
@@ -97,16 +84,13 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
         }
 
         //access to StandardEngine static instance
-        OperationQueue.main.addOperation {
-            self.engine = StandardEngine.engine
-            self.gridRowsTextField.text = String(self.engine.grid.size.rows)
-            self.gridColsTextField.text = String(self.engine.grid.size.cols)
-            self.gridRowsStepper.value = Double(self.engine.grid.size.rows)
-            self.gridColsStepper.value = Double(self.engine.grid.size.cols)
-        }
+            engine = StandardEngine.engine
+            gridRowsTextField.text = String(self.engine.grid.size.rows)
+            gridColsTextField.text = String(self.engine.grid.size.cols)
+            gridRowsStepper.value = Double(self.engine.grid.size.rows)
+            gridColsStepper.value = Double(self.engine.grid.size.cols)
         
     }
-    //end of viewDidLoad
     
     override func viewWillAppear(_ animated: Bool) {
         navigationController?.isNavigationBarHidden = true
@@ -144,16 +128,14 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
         self.present(alert, animated: true, completion: nil)
     }
     func createEmptyGridAlert() {
-  
         
-        let alertController = UIAlertController(title: "Create an empty grid!", message: "The size of the grid is 10x10", preferredStyle: .alert)
+        let alertController = UIAlertController(title: "Create an empty grid!", message: "The size of the grid is 10 x 10 cells", preferredStyle: .alert)
         
         let confirmAction = UIAlertAction(title: "Confirm", style: .default, handler: {
             alert -> Void in
             let userConfigName = alertController.textFields![0] as UITextField
             self.gridVariations.variationsData.updateValue([:], forKey: userConfigName.text!)
             })
-        
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
 
@@ -171,7 +153,6 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
 //ACTIONS
     
     @IBAction func rowsEditingEnded(_ sender: UITextField) {
-        
         guard let text = sender.text else { return }
         guard let val = Int(text) else {
             showErrorAlert(withMessage: "Invalid value: \(text), please try again.") {
@@ -239,9 +220,8 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
     
     @IBAction func addVariation(_ sender: UIButton) {
         OperationQueue.main.addOperation {
-        _ = self.createEmptyGridAlert()
+            _ = self.createEmptyGridAlert()
         }
-
     }
     
      // MARK: - Table view data source
@@ -277,10 +257,6 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
                 
             if let vc = segue.destination as? GridEditorViewController {
                 vc.variationValue = gridVariations.selectedVariation
-                vc.saveClosure = { newValue in
-                    self.sectionHeaders[indexPath.row] = newValue
-                    self.congifurationsView.reloadData()
-                }
             }
         }
     }

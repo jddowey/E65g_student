@@ -157,9 +157,6 @@ public extension Grid {
             }
         }
     }
-    func getConfiguration(){
-        
-    }
 
     public static func variationInitializer(pos: GridPosition) -> CellState {
         switch pos {

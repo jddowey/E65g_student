@@ -16,19 +16,19 @@ class GridVariation {
             variationsUpdateClosure?(self.variationsData)
         }
     }
-    var selectedVariation: String?
+    var selectedVariation: String = ""
     var variationsUpdateClosure: (([String : [String : [[Int]]]]) -> Void)?
     var gridSize: Int = 0
-    var saveClicked: Bool = false
+    var savedVariation: Bool = false
     
     init (data: [String : [String : [[Int]]]]) {
         self.variationsData = data
 
     }
     func createVariationGrid() -> Grid {
-        var newSize: [Int] = []
+            var newSize: [Int] = []
         
-        self.variationsData[selectedVariation!]?.forEach{(receivedVariationState, receivedVariationData) in
+            self.variationsData[selectedVariation]?.forEach{(receivedVariationState, receivedVariationData) in
             
             //establish the size
             let maxNumber = receivedVariationData
@@ -39,18 +39,18 @@ class GridVariation {
             
             newSize.append(maxNumber)
 
-        }
-        gridSize = ((newSize.reduce(0){$0 > $1 ? $0 : $1}) + 1) * 2
-        var variationGrid = Grid(GridSize(rows: gridSize, cols: gridSize)) { _ in .empty }
-        
-        self.variationsData[selectedVariation!]?.forEach{(receivedVariationState, receivedVariationData) in
+            }
+            gridSize = ((newSize.reduce(0){$0 > $1 ? $0 : $1}) + 1) * 2
+            var variationGrid = Grid(GridSize(rows: 10, cols: 10)) { _ in .empty }
+            if (gridSize != 2) {
+                variationGrid = Grid(GridSize(rows: gridSize, cols: gridSize)) { _ in .empty } }
+                self.variationsData[selectedVariation]?.forEach{(receivedVariationState, receivedVariationData) in
                 (0 ..< receivedVariationData.count).forEach { i in
-                        let varRow = receivedVariationData[i][0]
-                        let varCol = receivedVariationData[i][1]
-                        variationGrid[varRow, varCol] = CellState(rawValue: receivedVariationState)!
+                    let varRow = receivedVariationData[i][0]
+                    let varCol = receivedVariationData[i][1]
+                    variationGrid[varRow, varCol] = CellState(rawValue: receivedVariationState)!
                 }
-        }
-        print ("variation GRID from the class \(variationGrid)")
+            }
         return variationGrid
     }
 }
