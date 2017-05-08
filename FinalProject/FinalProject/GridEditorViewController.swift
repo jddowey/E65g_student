@@ -20,10 +20,10 @@ class GridEditorViewController: UIViewController, GridViewDataSource {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //access to StandardEngine instance
+        //access to StandardEngine static instance
         engine = StandardEngine.engine
         
-        //access to the GridVariations (json and user saved data) instance
+        //access to the GridVariations (json and user saved data) static instance
         gridVariations = GridVariation.gridVariationSingleton
         
         //gridDataSource delegate
@@ -40,18 +40,43 @@ class GridEditorViewController: UIViewController, GridViewDataSource {
             engine.grid = newConfiguration
         }
     }
+    override func viewWillAppear(_ animated: Bool) {
+        
+        //observer for the EngineUpdate
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name(rawValue: "EngineUpdate"),
+            object: nil,
+            queue: nil) { (n) in
+                self.gridViewEditor.setNeedsDisplay()
+        }
+        
+        //observer for the GridUpdate in GridView
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name(rawValue: "GridUpdate"),
+            object: nil,
+            queue: nil) { (n) in
+                self.gridViewEditor.setNeedsDisplay()
+        }
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name(rawValue: "GridEditorEngineUpdate"),
+            object: nil,
+            queue: nil) { notification in
+                self.engine.grid = notification.userInfo?["lastGrid"] as! GridProtocol
+        }
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-    //this function was created because I misinterpreted project requirements and thought that we need to save to a json file on the hard drive
+    //this function was created because I initially misinterpreted the project requirements and thought that we need to save to a json file on the hard drive
+    //please uncomment line 105 to see this function in action
     func saveToJsonFile() {
         // Get the url of userGridVariation.json in document directory
         guard let documentDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
         let fileUrl = documentDirectoryUrl.appendingPathComponent("userGridVariation.json")
-        print("fileUrl \(fileUrl)")
+        print("file Url \(fileUrl)")
         // Create the .json file in document directory if necessary
         if !FileManager.default.fileExists(atPath: fileUrl.path) {
             _ = FileManager.default.createFile(atPath: fileUrl.path, contents: nil, attributes: nil)
@@ -73,6 +98,8 @@ class GridEditorViewController: UIViewController, GridViewDataSource {
             print(error)
         }
     }
+    
+//MARK: - Actions
     
     @IBAction func saveUserGridVariation(_ sender: Any) {
         let lastGrid: GridProtocol = engine.grid
@@ -96,10 +123,12 @@ class GridEditorViewController: UIViewController, GridViewDataSource {
         _ = engine.grid.setConfiguration()
         
         //update gridVariations instance
-        gridVariations?.variationsData.updateValue([configuration.keys.first!: configuration["alive"]!], forKey: newName)
+        if configuration.keys.first != nil {
+            gridVariations?.variationsData.updateValue(configuration, forKey: newName)
+        }
 
         //if we were to save in json format to the hard drive
- //       _ = saveToJsonFile()
+//        _ = saveToJsonFile()
         
         //make a mark that the instance has been saved
         gridVariations?.savedVariation = true
@@ -108,20 +137,12 @@ class GridEditorViewController: UIViewController, GridViewDataSource {
         navigationController?.popViewController(animated: true)
     }
     
+//MARK: - Protocols
+    
     //conforming to GridViewDataSource protocol
     public subscript (row: Int, col: Int) -> CellState {
         get { return engine.grid[row,col] }
         set { engine.grid[row,col] = newValue }
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }

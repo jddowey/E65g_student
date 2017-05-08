@@ -21,17 +21,24 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //access to StandardEngine static instance
         gridVariations = GridVariation.gridVariationSingleton
+        
+        //access to the GridVariations (json and user saved data) static instance
         engine = StandardEngine.engine
+        
+        //engine delegate
         engine.delegate = self
+        
+        //gridDataSource delegate
         gridView.gridDataSource = self
       
         //load from defaults if exists, e.g. user saved in the SimulationView
         if UserDefaults.standard.object(forKey: "lastVariation") != nil {
             
             let recoveredVariation = UserDefaults.standard.object(forKey: "lastVariation")
-            gridVariations.variationsData.updateValue(recoveredVariation as! [String : [[Int]]], forKey: "lastVariation")
-            gridVariations.selectedVariation = "lastVariation"
+            gridVariations.variationsData.updateValue(recoveredVariation as! [String : [[Int]]], forKey: "Last Variation")
+            gridVariations.selectedVariation = "Last Variation"
             guard let recoveredConfiguration = gridVariations?.createVariationGrid() else {return}
             engine.grid = recoveredConfiguration
             
@@ -44,18 +51,7 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
             engine.grid = Grid(GridSize(rows: gridView.rows, cols: gridView.cols))
             gridVariations.savedVariation = true
         }
-        
-        //watch for the notification from GridEditor
-        NotificationCenter.default.addObserver(
-            forName: Notification.Name(rawValue: "GridEditorEngineUpdate"),
-            object: nil,
-            queue: nil) { n in
-                guard let receivedN:GridProtocol = n.userInfo!["lastGrid"] as? GridProtocol else {return}
-                self.engine.grid = receivedN
-        }
-
-
-        
+ 
     }
     override func viewWillAppear(_ animated: Bool) {
 
@@ -66,7 +62,8 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
             queue: nil) { (n) in
                 self.gridView.setNeedsDisplay()
         }
-//        //observer for the GridUpdate in GridView
+        
+        //observer for the GridUpdate in GridView
         NotificationCenter.default.addObserver(
             forName: Notification.Name(rawValue: "GridUpdate"),
             object: nil,
@@ -97,7 +94,9 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
                 //store the key value
                 configuration.removeAll()
                 _ = self.engine.grid.setConfiguration()
-                self.gridVariations?.variationsData.updateValue(configuration, forKey: field.text!)
+                if configuration.keys.first != nil {
+                    self.gridVariations?.variationsData.updateValue(configuration, forKey: field.text!)
+                }
                 UserDefaults.standard.set(configuration, forKey: "lastVariation")
                 UserDefaults.standard.synchronize()
 
@@ -118,36 +117,21 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
         self.present(alertController, animated: true, completion: nil)
     }
 
-
+//ACTIONS
+    
     @IBAction func stepDelegate(_ sender: Any) {
         _ = stepUp()
-
     }
     
     @IBAction func saveGrid(_ sender: Any) {
-
         _ = showAlert()
-        
-        // store the data in json format
-        //I implemented this due to me misinterpretating the project requirements
-//            do {
-//                let jsonData = try JSONSerialization.data(withJSONObject:configuration, options: [])
-//                let theJSONText = String(data: jsonData,
-//                                         encoding: .ascii)
-//                print("JSON data = \(jsonData)")
-//                print("JSON string = \(theJSONText!)")
-//                UserDefaults.standard.set(jsonData, forKey: "lastVariation")
-//                UserDefaults.standard.synchronize()
-//            }
-//            catch   {
-//                print(error.localizedDescription)
-//            }
-        
     }
     
     @IBAction func resetGrid(_ sender: Any) {
         engine.grid = Grid(GridSize(rows: gridView.rows, cols: gridView.cols))
     }
+    
+//PROTOCOLS
     
     //conforming to Engine Delegate protocol
     func engineDidUpdate(withGrid: GridProtocol) {
@@ -159,6 +143,5 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
         set { engine.grid[row,col] = newValue }
     }
     
-
 }
 

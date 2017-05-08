@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        
+
         // Override point for customization after application launch.
         return true
     }
@@ -44,28 +44,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
     func applicationDidFinishLaunching(_ application: UIApplication) {
-        
-//        _ = loadJson()
-    }
-    func loadJson() -> NSDictionary? {
-        
-        if let url = Bundle.main.path(forResource: "userGridVariation", ofType: "json") {
-            if let data = FileManager.default.contents(atPath: url) {
-                do {
-                    let dictionary = try JSONSerialization.jsonObject(with: data as Data, options: .allowFragments) as? NSDictionary
-                    
-                    return dictionary
-                } catch {
-                    print("Error!! Unable to parse  userGridVariation.json")
-                }
-            }
-            print("Error!! Unable to load  userGridVariation.json")
-        }
-        
-        return nil
-    }
-    
-    
 
+    }
+    
 }
 

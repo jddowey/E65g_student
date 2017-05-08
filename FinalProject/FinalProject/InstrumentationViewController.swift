@@ -13,6 +13,7 @@ let finalProjectURL = "https://dl.dropboxusercontent.com/u/7544475/S65g.json"
 
 class InstrumentationViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
+  
 
     @IBOutlet weak var gridRowsTextField: UITextField!
     @IBOutlet weak var gridColsTextField: UITextField!
@@ -35,6 +36,8 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //navigation controller bar
         navigationController?.isNavigationBarHidden = true
         
         
@@ -74,8 +77,6 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
             }
         }
 
-
-        
         //access to the GridVariations (json and user saved data) static instance
         gridVariations = GridVariation.gridVariationSingleton
         gridVariations.variationsUpdateClosure = { (gridVariations) in
@@ -104,7 +105,6 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
                 self.gridColsTextField.text = String(self.engine.grid.size.cols)
                 self.gridRowsStepper.value = Double(self.engine.grid.size.rows)
                 self.gridColsStepper.value = Double(self.engine.grid.size.cols)
-
         }
         
     }
@@ -113,7 +113,8 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
         super.didReceiveMemoryWarning()
     }
     
-    //MARK: AlertController Handling
+//MARK: AlertController Handling
+    
     func showErrorAlert(withMessage msg:String, action: (() -> Void)? ) {
         let alert = UIAlertController(
             title: "Alert",
@@ -127,8 +128,8 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
         alert.addAction(okAction)
         self.present(alert, animated: true, completion: nil)
     }
+    
     func createEmptyGridAlert() {
-        
         let alertController = UIAlertController(title: "Create an empty grid!", message: "The size of the grid is 10 x 10 cells", preferredStyle: .alert)
         
         let confirmAction = UIAlertAction(title: "Confirm", style: .default, handler: {
@@ -150,7 +151,7 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
  
     }
 
-//ACTIONS
+//MARK: - Actions
     
     @IBAction func rowsEditingEnded(_ sender: UITextField) {
         guard let text = sender.text else { return }
@@ -207,9 +208,9 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
         self.refreshRateLabel.text = String(format: "%.2f", sender.value)
         if self.refreshSwitch.isOn == true {
             self.engine.refreshRate = TimeInterval(sender.value)
-            print(self.engine.refreshRate)
         }
     }
+    
     @IBAction func refreshSwitchChanged(_ sender: UISwitch) {
          if refreshSwitch.isOn == true {
             self.engine.refreshRate = Double(self.refreshRate.value)
@@ -224,7 +225,7 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
         }
     }
     
-     // MARK: - Table view data source
+// MARK: - Table view data source
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -242,7 +243,7 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
         return cell
     }
     
-    // MARK: - Navigation
+// MARK: - Navigation
     
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -255,8 +256,6 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
             }
         }
     }
-
-
 
 }
 

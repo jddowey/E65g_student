@@ -35,21 +35,7 @@ public protocol GridViewDataSource {
 
     
     override func draw(_ rect: CGRect) {
-        
 
-//        NotificationCenter.default.addObserver(
-//            forName: Notification.Name(rawValue: "GridEditorEngineUpdate"),
-//            object: nil,
-//            queue: nil) { notification in
-//                let userInfo = notification.userInfo!
-//                print("GridView: notification received\(userInfo)")
-//                self.engine.grid = notification.userInfo?["lastGrid"] as! GridProtocol
-//                print("updated GridView engine.grid from GridEditor \(self.engine.grid)")
-//        }
-        
-        //check that the data source is not empty
-//        let numberEmpty = engine.grid.returnPositions(state: .empty).count
-//        print("numberEmpty \(numberEmpty)")
         rows = self.engine.grid.size.rows
         cols = self.engine.grid.size.cols
 

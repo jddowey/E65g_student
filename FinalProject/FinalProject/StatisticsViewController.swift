@@ -30,7 +30,7 @@ class StatisticsViewController: UIViewController {
         NotificationCenter.default.addObserver(
             forName: Notification.Name(rawValue: "GridUpdate"),
             object: nil,
-            queue: nil) { (n) in    
+            queue: nil) { (n) in
                 self.countEmpty.text = String(self.engine.grid.returnPositions(state: .empty).count)
                 self.countLiving.text = String(self.engine.grid.returnPositions(state: .alive).count)
                 self.countBorn.text = String(self.engine.grid.returnPositions(state: .born).count)
@@ -42,15 +42,5 @@ class StatisticsViewController: UIViewController {
         super.didReceiveMemoryWarning()
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
