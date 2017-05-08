@@ -13,7 +13,7 @@ let finalProjectURL = "https://dl.dropboxusercontent.com/u/7544475/S65g.json"
 
 class InstrumentationViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
-  
+    @IBOutlet weak var tabViewController: UITabBarController!
 
     @IBOutlet weak var gridRowsTextField: UITextField!
     @IBOutlet weak var gridColsTextField: UITextField!
@@ -39,6 +39,13 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
         
         //navigation controller bar
         navigationController?.isNavigationBarHidden = true
+
+        //solution for the notifications to work without prior clicking to the tabs after loading
+        OperationQueue.main.addOperation {
+            self.tabViewController?.selectedIndex = 1
+            self.tabViewController?.selectedIndex = 2
+            self.tabViewController?.selectedIndex = 0
+        }
         
         
         //fetcher
@@ -94,6 +101,7 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        //navigation controller bar
         navigationController?.isNavigationBarHidden = true
         
         //observer for the GridUpdate in GridView

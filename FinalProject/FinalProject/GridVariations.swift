@@ -16,7 +16,7 @@ class GridVariation {
             variationsUpdateClosure?(self.variationsData)
         }
     }
-    var selectedVariation: String = ""
+    var selectedVariation: String?
     var variationsUpdateClosure: (([String : [String : [[Int]]]]) -> Void)?
     var gridSize: Int = 0
     var savedVariation: Bool = false
@@ -28,7 +28,7 @@ class GridVariation {
     func createVariationGrid() -> Grid {
             var newSize: [Int] = []
         
-            self.variationsData[selectedVariation]?.forEach{(receivedVariationState, receivedVariationData) in
+            self.variationsData[selectedVariation!]?.forEach{(receivedVariationState, receivedVariationData) in
             
             //establish the size
             let maxNumber = receivedVariationData
@@ -44,7 +44,7 @@ class GridVariation {
             var variationGrid = Grid(GridSize(rows: 10, cols: 10)) { _ in .empty }
             if (gridSize != 2) {
                 variationGrid = Grid(GridSize(rows: gridSize, cols: gridSize)) { _ in .empty } }
-                self.variationsData[selectedVariation]?.forEach{(receivedVariationState, receivedVariationData) in
+                self.variationsData[selectedVariation!]?.forEach{(receivedVariationState, receivedVariationData) in
                 (0 ..< receivedVariationData.count).forEach { i in
                     let varRow = receivedVariationData[i][0]
                     let varCol = receivedVariationData[i][1]
