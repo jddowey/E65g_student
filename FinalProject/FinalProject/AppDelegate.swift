@@ -53,7 +53,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if let data = FileManager.default.contents(atPath: url) {
                 do {
                     let dictionary = try JSONSerialization.jsonObject(with: data as Data, options: .allowFragments) as? NSDictionary
-                    print("DICTIONARY \(dictionary)")
                     
                     return dictionary
                 } catch {

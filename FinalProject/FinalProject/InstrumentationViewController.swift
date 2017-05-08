@@ -242,11 +242,6 @@ class InstrumentationViewController: UIViewController, UITableViewDelegate, UITa
         return cell
     }
     
-    //no need for this function but handyfor debugging
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        NSLog("You selected cell number: \(indexPath.row)!")
-    }
-
     // MARK: - Navigation
     
     // In a storyboard-based application, you will often want to do a little preparation before navigation

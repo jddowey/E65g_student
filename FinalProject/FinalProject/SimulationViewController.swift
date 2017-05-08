@@ -77,7 +77,6 @@ class SimulationViewController: UIViewController, GridViewDataSource, EngineDele
             forName: Notification.Name(rawValue: "GridEditorEngineUpdate"),
             object: nil,
             queue: nil) { notification in
-                let userInfo = notification.userInfo!
                 self.engine.grid = notification.userInfo?["lastGrid"] as! GridProtocol
         }
     }
